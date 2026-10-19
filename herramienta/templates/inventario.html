@@ -1,0 +1,751 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<link rel="stylesheet" href="{% static 'css/inventario.css' %}?v=3" />
+<style>
+  /* Refuerzo de alto contraste para números KPI de Inventario */
+  .inv-kpi-value {
+    font-size: 2rem !important;
+    font-weight: 800 !important;
+    line-height: 1.1 !important;
+    color: var(--sbm-rock-900, #0F172A) !important;
+    font-family: var(--font-title, 'Space Grotesk', sans-serif);
+    letter-spacing: -0.02em;
+  }
+  .inv-kpi-value.danger {
+    color: var(--sbm-stock-danger-solid, #DC2626) !important;
+  }
+  .inv-kpi-value.warning {
+    color: var(--sbm-amber-600, #B45309) !important;
+  }
+  body.dark-mode .inv-kpi-value,
+  body.dark-theme .inv-kpi-value,
+  [data-theme="dark"] .inv-kpi-value {
+    color: #FFFFFF !important;
+  }
+  body.dark-mode .inv-kpi-value.danger,
+  body.dark-theme .inv-kpi-value.danger,
+  [data-theme="dark"] .inv-kpi-value.danger {
+    color: #F87171 !important;
+  }
+  body.dark-mode .inv-kpi-value.warning,
+  body.dark-theme .inv-kpi-value.warning,
+  [data-theme="dark"] .inv-kpi-value.warning {
+    color: #FBBF24 !important;
+  }
+</style>
+{% endblock css %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-dismissible fade show d-flex align-items-center gap-2 alert-custom" role="alert">
+  {% if message.tags == 'error' %}
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.2">
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+    <line x1="12" y1="9" x2="12" y2="13" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+  {% else %}
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2.2">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+  {% endif %}
+  <span>{{ message }}</span>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="inv-kpi-card accent-blue">
+      <div class="inv-kpi-icon blue">
+        <i class="bi bi-tools"></i>
+      </div>
+      <div>
+        <div class="inv-kpi-label">Total Herramientas</div>
+        <div class="inv-kpi-value">{{ kpi_total_productos }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="inv-kpi-card accent-green">
+      <div class="inv-kpi-icon green">
+        <i class="bi bi-box-seam"></i>
+      </div>
+      <div>
+        <div class="inv-kpi-label">Unidades Totales</div>
+        <div class="inv-kpi-value">{{ kpi_total_stock }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="inv-kpi-card accent-red">
+      <div class="inv-kpi-icon red">
+        <i class="bi bi-exclamation-octagon"></i>
+      </div>
+      <div>
+        <div class="inv-kpi-label">Agotadas (Sin Stock)</div>
+        <div class="inv-kpi-value {% if kpi_sin_stock > 0 %}danger{% endif %}">{{ kpi_sin_stock }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="inv-kpi-card accent-amber">
+      <div class="inv-kpi-icon amber">
+        <i class="bi bi-graph-down-arrow"></i>
+      </div>
+      <div>
+        <div class="inv-kpi-label">Stock Bajo (≤ 5)</div>
+        <div class="inv-kpi-value {% if kpi_stock_bajo > 0 %}warning{% endif %}">{{ kpi_stock_bajo }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Bar (Una sola línea moderna y cohesiva) -->
+<div class="sfb-wrap mb-4">
+
+  <!-- Búsqueda en tiempo real (Largo a todo el ancho disponible) -->
+  <div class="sfb-search-group" style="display: block !important; flex: 1 1 auto !important; width: 100% !important; min-width: 0 !important; position: relative !important;">
+    <i class="bi bi-search sfb-search-icon"></i>
+    <input type="text" id="inventario-busqueda" class="sfb-search-input"
+           style="display: block !important; width: 100% !important; box-sizing: border-box !important;"
+           placeholder="Buscar por SKU o nombre de herramienta…"
+           value="{{ request.GET.busqueda|default:'' }}"
+           autocomplete="off">
+  </div>
+
+  <div class="sfb-divider"></div>
+
+  <!-- Selector de categoría -->
+  <select id="inventario-categoria" class="sfb-select" style="flex: 0 0 auto; width: auto; min-width: 220px;" aria-label="Filtrar por categoría">
+    <option value="">— Todas las Categorías —</option>
+    {% for cat in categorias %}
+    <option value="{{ cat.pk }}" {% if request.GET.categoria == cat.pk|slugify %}selected{% endif %}>{{ cat.nombre }}</option>
+    {% endfor %}
+  </select>
+
+  <!-- Botón nueva categoría -->
+  <button type="button" class="sfb-btn-add"
+          data-bs-toggle="modal" data-bs-target="#modalNuevaCategoria"
+          title="Nueva categoría">
+    <i class="bi bi-plus-lg"></i>
+  </button>
+
+  <div class="sfb-divider"></div>
+
+  <!-- Limpiar -->
+  <button type="button" id="btn-limpiar-filtros" class="sfb-btn-secondary" style="flex: 0 0 auto;" title="Limpiar filtros">
+    <i class="bi bi-x-circle"></i> Limpiar
+  </button>
+
+</div>
+
+
+
+
+
+<div class="card table-card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <div class="p-2 rounded-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center sbm-icon-box-34">
+        <i class="bi bi-tools fs-5"></i>
+      </div>
+      <div>
+        <h6 class="fw-bold mb-0 text-dark">Herramientas registradas</h6>
+        <small class="text-muted">Catálogo completo de existencias, ubicaciones y control de stock</small>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-light text-dark border px-3 py-2 rounded-pill font-monospace small">
+        <i class="bi bi-layers me-1 text-primary"></i>{{ total }} registro{{ total|pluralize }}
+      </span>
+      <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 d-flex align-items-center gap-1 shadow-xs" data-bs-toggle="modal" data-bs-target="#modalKardexHistorial" title="Ver Historial Kardex">
+        <i class="bi bi-journal-text"></i>
+        <span>Kardex</span>
+      </button>
+      <button type="button" class="btn btn-success btn-sm rounded-pill px-3 d-flex align-items-center gap-1 shadow-xs" data-bs-toggle="modal" data-bs-target="#modalNuevaHerramienta" title="Registrar una nueva herramienta en el inventario">
+        <i class="bi bi-plus-lg"></i>
+        <span>Nueva Herramienta</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-responsive px-3 pb-3 pt-2">
+    <table class="table table-hover align-middle datatable-custom w-100" id="inventario-table">
+      <thead class="table-light">
+        <tr class="text-secondary small fw-bold text-uppercase th-tracking">
+          <th class="text-center th-w-80" data-priority="2">codigo_sku</th>
+          <th data-priority="1">nombre_herramienta</th>
+          <th data-priority="3">Descripción</th>
+          <th data-priority="2">categoria</th>
+          <th data-priority="2">estante</th>
+          <th class="text-center" data-priority="1">stock</th>
+          <th class="text-center th-w-140" data-priority="1">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for producto in productos %}
+        <tr>
+          <!-- SKU -->
+          <td class="text-center">
+            <span class="badge bg-light text-secondary border font-monospace px-2 py-1">
+              {{ producto.codigo_sku|default:producto.pk }}
+            </span>
+          </td>
+          <!-- Herramienta -->
+          <td>
+            <span class="fw-bold text-dark">{{ producto.nombre }}</span>
+          </td>
+          <!-- Descripción -->
+          <td>
+            <span class="text-muted small text-truncate d-inline-block max-w-200" title="{{ producto.descripcion|default:'' }}">
+              {{ producto.descripcion|default:"Sin descripción" }}
+            </span>
+          </td>
+          <!-- Categoría -->
+          <td class="col-categoria" data-categoria-id="{{ producto.codigo_categoria.pk|default:'' }}">
+            {% if producto.codigo_categoria %}
+            <span class="badge-state badge-aprobada">{{ producto.codigo_categoria }}</span>
+            {% else %}
+            <span class="text-muted small fst-italic">Sin categoría</span>
+            {% endif %}
+          </td>
+
+          <!-- Ubicación -->
+          <td>
+            {% if producto.estante %}
+            <button type="button" class="btn btn-sm btn-light border rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1 shadow-xs btn-ver-ubicacion" 
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Ver ubicación en almacén" 
+                    data-almacen-nombre="{{ producto.estante.almacen.nombre|escapejs }}" 
+                    data-almacen-pk="{{ producto.estante.almacen.pk }}" 
+                    data-estante-codigo="{{ producto.estante.codigo|escapejs }}" 
+                    data-estante-pk="{{ producto.estante.pk }}" 
+                    data-producto-nombre="{{ producto.nombre|escapejs }}">
+              <i class="bi bi-geo-alt-fill text-danger"></i>
+              <span class="small font-monospace">{{ producto.estante.codigo }}</span>
+            </button>
+            {% else %}
+            <span class="text-muted small fst-italic">No asignada</span>
+            {% endif %}
+          </td>
+          <!-- Stock -->
+          <td class="text-center" data-order="{{ producto.stock_disponible }}">
+            {% if producto.stock_disponible == 0 %}
+            <span class="badge-state badge-rechazada">{{ producto.stock_disponible }}</span>
+            {% elif producto.stock_disponible <= 5 %}
+            <span class="badge-state badge-pendiente">{{ producto.stock_disponible }}</span>
+            {% else %}
+            <span class="badge-state badge-aprobada">{{ producto.stock_disponible }}</span>
+            {% endif %}
+          </td>
+          <!-- Acciones -->
+          <td class="text-center">
+            <div class="sbm-actions-group justify-content-center">
+              <button type="button" class="sbm-action-btn sbm-btn-view"
+                      data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles de {{ producto.nombre }}"
+                      aria-label="Ver detalles de {{ producto.nombre }}"
+                      onclick="window.mostrarModalDetalles({
+                        title: '{{ producto.nombre|escapejs }}',
+                        subtitle: 'SKU: {{ producto.codigo_sku|default:producto.pk|escapejs }}',
+                        badge: '{{ producto.codigo_categoria|default:"Herramienta"|escapejs }}',
+                        icon: 'bi-tools',
+                        fields: [
+                          { label: 'Código SKU', value: '{{ producto.codigo_sku|default:producto.pk|escapejs }}' },
+                          { label: 'Categoría', value: '{{ producto.codigo_categoria|default:"Sin categoría"|escapejs }}' },
+                          { label: 'Stock Disponible', value: '{{ producto.stock_disponible }} unidades', isBadge: true, badgeClass: '{% if producto.stock_disponible == 0 %}sbm-badge-agotado{% elif producto.stock_disponible <= 5 %}sbm-badge-critico{% else %}sbm-badge-disponible{% endif %}' },
+                          { label: 'Ubicación', value: '{% if producto.estante %}Estante {{ producto.estante.codigo|escapejs }} - Almacén {{ producto.estante.almacen.nombre|escapejs }}{% else %}No asignada{% endif %}' },
+                          { label: 'Descripción', value: '{{ producto.descripcion|default:"Sin descripción registrada"|escapejs }}', col: 12 }
+                        ]
+                      })">
+                <i class="bi bi-eye"></i>
+              </button>
+
+              {% if producto.stock_disponible > 0 %}
+              <button type="button" class="sbm-action-btn sbm-btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Registrar préstamo de {{ producto.nombre }}" aria-label="Registrar préstamo de {{ producto.nombre }}" onclick="abrirPrestamo('{{ producto.pk }}', '{{ producto.codigo_sku|escapejs }}', '{{ producto.nombre|escapejs }}')">
+                <i class="bi bi-arrow-left-right"></i>
+              </button>
+              {% else %}
+              <button type="button" class="sbm-action-btn sbm-btn-success" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Sin existencias disponibles" aria-label="Sin existencias de {{ producto.nombre }}">
+                <i class="bi bi-arrow-left-right"></i>
+              </button>
+              {% endif %}
+
+              <button type="button" class="sbm-action-btn sbm-btn-edit" data-bs-toggle="tooltip" data-bs-placement="top" title="Modificar {{ producto.nombre }}" aria-label="Modificar {{ producto.nombre }}" onclick="abrirEditar('{{ producto.pk }}', '{{ producto.codigo_sku|escapejs }}', '{{ producto.nombre|escapejs }}', '{% if producto.descripcion %}{{ producto.descripcion|escapejs }}{% endif %}', '{{ producto.stock_disponible }}', '{% if producto.codigo_categoria %}{{ producto.codigo_categoria.pk }}{% endif %}', '{% if producto.estante %}{{ producto.estante.almacen.pk }}{% endif %}', '{% if producto.estante %}{{ producto.estante.pk }}{% endif %}')">
+                <i class="bi bi-pencil"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center py-5 text-muted">
+            <i class="bi bi-tools display-6 d-block mb-2 opacity-50"></i>
+            <h6 class="fw-semibold">No se encontraron herramientas registradas</h6>
+            <p class="small text-muted mb-0">Usa el botón <strong>Nueva Herramienta</strong> para agregar una al inventario.</p>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== MODALES ==================== -->
+
+<div class="modal fade" id="modalPrestamoRapido" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-2"></i>Registrar Préstamo de Salida</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="{% url 'prestamo' %}">
+        {% csrf_token %}
+        <input type="hidden" name="producto[]" id="prestamo_producto_id">
+        <div class="modal-body p-4">
+          <div class="alert alert-success py-2 mb-3 fs-7">
+            <strong>Herramienta:</strong> <span id="prestamo_display_herramienta">—</span>
+          </div>
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="prestamo_usuario" class="form-label text-muted fw-bold small uppercase mb-1">Usuario *</label>
+              <select name="usuario" id="prestamo_usuario" class="form-select" required onchange="actualizarNombreUsuario();">
+                <option value="">— Selecciona usuario —</option>
+                {% for usuario in usuarios_sistema %}
+                <option value="{{ usuario.numero_documento }}" data-nombre="{{ usuario.nombre_completo|escapejs }}">
+                  {{ usuario.nombre_completo }} — {{ usuario.numero_documento }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <label for="prestamo_nombre_usuario" class="form-label text-muted fw-bold small uppercase mb-1">Nombre Completo</label>
+              <input type="text" name="nombre_usuario" id="prestamo_nombre_usuario" class="form-control" placeholder="Se autocompletará" readonly required>
+            </div>
+            <div class="col-6">
+              <label for="prestamo_cantidad" class="form-label text-muted fw-bold small uppercase mb-1">Cantidad a Prestar *</label>
+              <input type="number" name="cantidad[]" id="prestamo_cantidad" class="form-control" min="1" value="1" required>
+            </div>
+            <div class="col-6">
+              <label for="prestamo_fecha_vencimiento" class="form-label text-muted fw-bold small uppercase mb-1">Fecha de Devolución Estimada</label>
+              <input type="date" name="fecha_vencimiento" id="prestamo_fecha_vencimiento" class="form-control">
+            </div>
+            <div class="col-12">
+              <label for="prestamo_observaciones" class="form-label text-muted fw-bold small uppercase mb-1">Observación inicial</label>
+              <textarea name="observaciones" id="prestamo_observaciones" class="form-control" rows="2" placeholder="Frente de trabajo, área de minas, etc..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0 px-4 py-3">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success px-4">Confirmar Préstamo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalUbicacion" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title d-flex align-items-center gap-2"><i class="bi bi-geo-alt"></i> Ubicación de la herramienta</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body modal-body-padded">
+        <div class="detalle-row">
+          <span class="label-caps">Herramienta</span>
+          <span class="value-text" id="ubi_producto_nombre">—</span>
+        </div>
+        <div class="detalle-row">
+          <span class="label-caps">Almacén</span>
+          <span class="value-text" id="ubi_almacen_nombre">—</span>
+        </div>
+        <div class="detalle-row">
+          <span class="label-caps">Código almacén</span>
+          <span class="value-text font-monospace" id="ubi_almacen_pk">—</span>
+        </div>
+        <div class="detalle-row border-bottom-0">
+          <span class="label-caps">Estante</span>
+          <span class="value-text font-monospace" id="ubi_estante_codigo">—</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalNuevaHerramienta" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>Registrar Nueva Herramienta</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="{% url 'inventario' %}" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="crear_producto">
+        <div class="modal-body p-4">
+
+          {% if error_producto %}
+          <div class="alert alert-danger py-2 fs-7 mb-3">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error_producto }}
+          </div>
+          {% endif %}
+
+          <div class="modal-section-title">Datos de la herramienta</div>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="nueva_sku" class="form-label text-muted fw-bold small uppercase mb-1">Código SKU *</label>
+              <input type="text" name="codigo_sku" id="nueva_sku" class="form-control" placeholder="Ej: SKU-001" value="{{ post_sku }}" required>
+            </div>
+            <div class="col-md-8">
+              <label for="nueva_nombre" class="form-label text-muted fw-bold small uppercase mb-1">Nombre *</label>
+              <input type="text" name="nombre" id="nueva_nombre" class="form-control" placeholder="Nombre de la herramienta" value="{{ post_nombre }}" required>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="select-categoria-nueva" class="form-label text-muted fw-bold small uppercase mb-0">Categoría</label>
+                <button type="button" class="btn btn-sm btn-outline-success py-0 px-2" onclick="abrirCategoriaDesdeProducto();" title="Crear categoría instantánea">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+              </div>
+              <select name="categoria" class="form-select" id="select-categoria-nueva">
+                <option value="">-- Sin Categoría --</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.pk }}" {% if post_categoria|slugify == cat.pk|slugify %}selected{% endif %}>{{ cat.nombre_categoria }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="nueva_stock" class="form-label text-muted fw-bold small uppercase mb-1">Stock / Cantidad inicial</label>
+              <input type="number" name="stock" id="nueva_stock" class="form-control" min="0" max="10000" step="1" pattern="\d*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ post_stock|default:1 }}" required>
+            </div>
+            <div class="col-12">
+              <label for="nueva_descripcion" class="form-label text-muted fw-bold small uppercase mb-1">Descripción</label>
+              <textarea name="descripcion" id="nueva_descripcion" class="form-control" rows="3" maxlength="500" placeholder="Descripción (opcional)">{{ post_descripcion }}</textarea>
+            </div>
+          </div>
+
+          <div class="modal-section-title mt-4">Ubicación física</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="nueva_almacen" class="form-label text-muted fw-bold small uppercase mb-1">Almacén</label>
+              <select id="nueva_almacen" class="form-select">
+                <option value="">-- Selecciona almacén --</option>
+                {% for alm in almacenes %}
+                <option value="{{ alm.pk }}">{{ alm.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="nueva_estante" class="form-label text-muted fw-bold small uppercase mb-1">Estante</label>
+              <select name="estante" id="nueva_estante" class="form-select" disabled>
+                <option value="">-- Selecciona un almacén primero --</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0 px-4 py-3">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success px-4">Guardar Registro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalEditarHerramienta" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Modificar Información</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="editar_producto">
+        <input type="hidden" name="producto_id" id="edit_producto_id">
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="edit_sku" class="form-label text-muted fw-bold small uppercase mb-1">Código / SKU</label>
+              <input type="text" name="codigo_sku" id="edit_sku" class="form-control" required>
+            </div>
+            <div class="col-12">
+              <label for="edit_nombre" class="form-label text-muted fw-bold small uppercase mb-1">Nombre</label>
+              <input type="text" name="nombre" id="edit_nombre" class="form-control" required>
+            </div>
+            <div class="col-12">
+              <label for="edit_categoria" class="form-label text-muted fw-bold small uppercase mb-1">Categoría</label>
+              <select name="categoria" id="edit_categoria" class="form-select">
+                <option value="">-- Sin Categoría --</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.pk }}">{{ cat.nombre_categoria }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6">
+              <label for="edit_almacen" class="form-label text-muted fw-bold small uppercase mb-1">Almacén</label>
+              <select id="edit_almacen" class="form-select">
+                <option value="">-- Selecciona almacén --</option>
+                {% for alm in almacenes %}
+                <option value="{{ alm.pk }}">{{ alm.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6">
+              <label for="edit_estante" class="form-label text-muted fw-bold small uppercase mb-1">Estante</label>
+              <select name="estante" id="edit_estante" class="form-select" disabled>
+                <option value="">-- Selecciona un almacén primero --</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label for="edit_stock" class="form-label text-muted fw-bold small uppercase mb-1">Stock / Cantidad</label>
+              <input type="number" name="stock" id="edit_stock" class="form-control" min="0" max="10000" step="1" pattern="\d*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+            <div class="col-12">
+              <label for="edit_descripcion" class="form-label text-muted fw-bold small uppercase mb-1">Descripción</label>
+              <textarea name="descripcion" id="edit_descripcion" class="form-control" rows="3" maxlength="500"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0 px-4 py-3">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-primary px-4">Actualizar Datos</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL NUEVA CATEGORIA ==================== -->
+<div class="modal fade" id="modalNuevaCategoria" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-tag-fill me-2"></i>Crear Nueva Categoría</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="{% url 'inventario' %}">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="crear_categoria">
+
+        <input type="hidden" name="codigo_sku" value="{{ post_sku }}">
+        <input type="hidden" name="nombre" value="{{ post_nombre }}">
+        <input type="hidden" name="descripcion" value="{{ post_descripcion }}">
+        <input type="hidden" name="stock" value="{{ post_stock }}">
+
+        <div class="modal-body p-4">
+          {% if error_categoria %}
+          <div class="alert alert-danger py-2 fs-7 mb-3">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error_categoria }}
+          </div>
+          {% endif %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="nueva_cat_nombre" class="form-label text-muted fw-bold small uppercase mb-1">Nombre de la Categoría *</label>
+              <input type="text" name="cat_nombre" id="nueva_cat_nombre" class="form-control" placeholder="Ej: Herramientas Eléctricas" value="{{ post_cat_nombre }}" required>
+            </div>
+            <div class="col-12">
+              <label for="nueva_cat_descripcion" class="form-label text-muted fw-bold small uppercase mb-1">Descripción corta</label>
+              <textarea name="cat_descripcion" id="nueva_cat_descripcion" class="form-control" rows="2" placeholder="Opcional...">{{ post_cat_descripcion }}</textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0 px-4 py-3">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success px-4">Guardar Categoría</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function cargarEstantes(almacenId, selectEstanteEl, estanteSeleccionado) {
+    if (!almacenId) {
+      selectEstanteEl.innerHTML = '<option value="">-- Selecciona un almacén primero --</option>';
+      selectEstanteEl.disabled = true;
+      return;
+    }
+    selectEstanteEl.innerHTML = '<option value="">Cargando...</option>';
+    selectEstanteEl.disabled = true;
+
+    fetch(`{% url 'herramienta:api_estantes' %}?almacen_id=${almacenId}`)
+      .then(res => res.json())
+      .then(data => {
+        selectEstanteEl.innerHTML = '<option value="">-- Selecciona estante --</option>';
+        (data.estantes || []).forEach(est => {
+          let opt = document.createElement('option');
+          opt.value = est.id;
+          opt.textContent = `${est.codigo} (${est.ubicacion})`;
+          if (estanteSeleccionado && String(est.id) === String(estanteSeleccionado)) {
+            opt.selected = true;
+          }
+          selectEstanteEl.appendChild(opt);
+        });
+        selectEstanteEl.disabled = false;
+      })
+      .catch(() => {
+        selectEstanteEl.innerHTML = '<option value="">Error al cargar estantes</option>';
+        selectEstanteEl.disabled = true;
+      });
+  }
+
+  document.getElementById('nueva_almacen').addEventListener('change', function() {
+    cargarEstantes(this.value, document.getElementById('nueva_estante'));
+  });
+
+  document.getElementById('edit_almacen').addEventListener('change', function() {
+    cargarEstantes(this.value, document.getElementById('edit_estante'));
+  });
+
+  function abrirEditar(id, sku, nombre, descripcion, stock, categoria, almacenId, estanteId) {
+    document.getElementById('edit_producto_id').value = id;
+    document.getElementById('edit_sku').value = sku;
+    document.getElementById('edit_nombre').value = nombre;
+    document.getElementById('edit_descripcion').value = descripcion;
+    document.getElementById('edit_stock').value = stock;
+    
+    let catSelect = document.getElementById('edit_categoria');
+    if (categoria && categoria !== 'None' && categoria !== '') {
+      catSelect.value = categoria;
+    } else {
+      catSelect.value = "";
+    }
+
+    let almacenSelect = document.getElementById('edit_almacen');
+    let estanteSelect = document.getElementById('edit_estante');
+    if (almacenId && almacenId !== 'None' && almacenId !== '') {
+      almacenSelect.value = almacenId;
+      cargarEstantes(almacenId, estanteSelect, estanteId);
+    } else {
+      almacenSelect.value = "";
+      estanteSelect.innerHTML = '<option value="">-- Selecciona un almacén primero --</option>';
+      estanteSelect.disabled = true;
+    }
+    
+    var modalEdit = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEditarHerramienta'), { backdrop: 'static' });
+    modalEdit.show();
+  }
+
+  // Flujo puente: Abrir categoría desde el modal de producto conservando datos
+  function abrirCategoriaDesdeProducto() {
+    // Cerramos el modal de herramientas temporalmente
+    var modalProdElement = document.getElementById('modalNuevaHerramienta');
+    var modalProd = bootstrap.Modal.getInstance(modalProdElement);
+    if(modalProd) modalProd.hide();
+
+    // Sincronizamos los inputs actuales del producto hacia el formulario del modal de categoría
+    var formCat = document.querySelector('#modalNuevaCategoria form');
+    formCat.querySelector('input[name="codigo_sku"]').value = modalProdElement.querySelector('input[name="codigo_sku"]').value;
+    formCat.querySelector('input[name="nombre"]').value = modalProdElement.querySelector('input[name="nombre"]').value;
+    formCat.querySelector('input[name="descripcion"]').value = modalProdElement.querySelector('textarea[name="descripcion"]').value;
+    formCat.querySelector('input[name="stock"]').value = modalProdElement.querySelector('input[name="stock"]').value;
+
+    // Abrimos el modal de categoría
+    var modalCat = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNuevaCategoria'));
+    modalCat.show();
+  }
+
+// Control de Reapertura automática mediante banderas del backend
+  document.addEventListener("DOMContentLoaded", function() {
+    {% if form_modal_errors or request.session.abrir_modal_producto %}
+      // Usamos getOrCreateInstance para evitar crear múltiples instancias del mismo modal y bugs visuales
+      var modalProd = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNuevaHerramienta'));
+      modalProd.show();
+    {% elif modal_categoria_errors %}
+      var modalCat = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNuevaCategoria'));
+      modalCat.show();
+    {% endif %}
+  });
+</script>
+
+{# ══ MODAL KARDEX HISTORIAL ══ #}
+<div class="modal fade" id="modalKardexHistorial" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-journal-text me-2"></i>Kardex - Historial de Movimientos</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle">
+            <thead class="table-dark">
+              <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th class="text-center">Cant.</th>
+                <th class="text-center">Stock (Ant → Nuevo)</th>
+                <th>Responsable</th>
+                <th>Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for k in kardex_list %}
+              <tr>
+                <td class="small text-nowrap">{{ k.creado_en|date:"d/m/Y H:i" }}</td>
+                <td><strong>{{ k.producto.nombre }}</strong> <span class="text-muted small">({{ k.producto.codigo_sku }})</span></td>
+                <td>
+                  {% if k.tipo_movimiento == 'entrada' %}
+                    <span class="badge bg-success">Entrada</span>
+                  {% elif k.tipo_movimiento == 'salida' %}
+                    <span class="badge bg-danger">Salida</span>
+                  {% elif k.tipo_movimiento == 'prestamo' %}
+                    <span class="badge bg-warning text-dark">Préstamo</span>
+                  {% elif k.tipo_movimiento == 'devolucion' %}
+                    <span class="badge bg-info text-dark">Devolución</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Ajuste</span>
+                  {% endif %}
+                </td>
+                <td class="text-center fw-bold">{{ k.cantidad }}</td>
+                <td class="text-center small font-monospace">{{ k.stock_anterior }} → {{ k.stock_nuevo }}</td>
+                <td class="small">{{ k.usuario_nombre }}</td>
+                <td class="small text-muted">{{ k.observaciones|default:"—" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                  <i class="bi bi-journal-x display-6 d-block mb-2"></i> No hay registros de movimientos en Kardex aún.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script defer src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script defer src="{% static 'js/datatables.min.js' %}?v=3"></script>
+<script defer src="{% static 'js/tables/inventario_table.js' %}?v=3"></script>
+<script defer src="{% static 'js/inventario.js' %}?v=1"></script>
+{% endblock js %}

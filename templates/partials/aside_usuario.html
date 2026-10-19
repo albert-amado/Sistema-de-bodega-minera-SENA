@@ -1,0 +1,138 @@
+<aside id="aside-sidebar" role="navigation" aria-label="Menú principal de usuario">
+  <div class="aside-header d-flex align-items-center gap-2" title="Sistema de Bodega Minera">
+    <svg class="sbm-logo-icon flex-shrink-0" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-label="Logo Sistema de Bodega Minera">
+      <path d="M4 12c0-4.5 3.5-8 8-8s8 3.5 8 8" stroke="#F59E0B" stroke-width="2.2"/>
+      <path d="M10 2h4v3h-4z" fill="#F59E0B" stroke="#F59E0B" stroke-width="1.5"/>
+      <path d="M4 12h16v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8z" stroke="#CBD5E1" stroke-width="2"/>
+      <path d="M9 16h6" stroke="#CBD5E1" stroke-width="1.8"/>
+      <path d="M12 12v10" stroke="#CBD5E1" stroke-width="1.8"/>
+    </svg>
+    <div class="d-flex flex-column lh-1">
+      <span class="aside-brand-name">Bodega Minera</span>
+      <span class="aside-brand-sub">Portal de Aprendiz</span>
+    </div>
+  </div>
+
+  <nav class="aside-nav">
+
+    <!-- GENERAL -->
+    <div class="d-flex align-items-center gap-2 px-3 pt-2 pb-1">
+      <span class="text-uppercase aside-section-label">
+        General
+      </span>
+      <hr class="flex-grow-1 my-0 opacity-10" />
+    </div>
+
+    <!-- Principal -->
+    <a href="{% url 'pagina_principal' %}"
+      class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded mx-2 fw-medium
+              {% if request.resolver_match.url_name == 'pagina_principal' or request.resolver_match.url_name == 'home' %}active{% endif %}">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="3" width="7" height="7" />
+        <rect x="14" y="3" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" />
+        <rect x="14" y="14" width="7" height="7" />
+      </svg>
+      Principal
+    </a>
+
+    <!-- Mis Préstamos -->
+    <a href="{% url 'prestamo_usuario' %}"
+      class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded mx-2 fw-medium
+              {% if request.resolver_match.url_name == 'prestamo_usuario' %}active{% endif %}">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+        <path d="M9 14l2 2 4-4" />
+      </svg>
+      Mis Préstamos
+    </a>
+
+    <!-- SESIÓN — solo visible si NO hay sesión activa -->
+    {% if not request.session.usuario_documento %}
+    <div class="d-flex align-items-center gap-2 px-3 pt-3 pb-1">
+      <span class="text-uppercase aside-section-label">
+        Sesión
+      </span>
+      <hr class="flex-grow-1 my-0 opacity-10" />
+    </div>
+
+    <a href="{% url 'login' %}"
+      class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded mx-2 fw-medium
+              {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+        <polyline points="10 17 15 12 10 7" />
+        <line x1="15" y1="12" x2="3" y2="12" />
+      </svg>
+      Inicio de sesión
+    </a>
+    {% endif %}
+
+  </nav>
+
+  <!-- ── Bottom bar: bell button (left) + pill user dropup (right) ── -->
+  <div class="nav-bottom">
+    <hr class="opacity-10 mx-3 my-0">
+    <div class="aside-bottom-bar">
+
+      <!-- Bell notification button (Left) -->
+      <div id="aside-notif-widget" class="position-relative flex-shrink-0">
+        <button id="aside-notif-btn" type="button" aria-label="Notificaciones" aria-expanded="false" class="btn-notif-bell">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <span id="aside-notif-badge" class="aside-notif-badge d-none">0</span>
+        </button>
+        <!-- Notif panel + JS -->
+        {% include "partials/_notif_row.html" %}
+      </div>
+
+      <!-- Pill User Avatar + Name Dropup (Right) -->
+      <div class="dropup flex-grow-1 min-w-0">
+        <button type="button"
+          class="btn btn-profile-pill w-100"
+          data-bs-toggle="dropdown"
+          data-bs-display="static"
+          aria-expanded="false"
+          style="position: relative !important; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: flex-start !important; width: 100% !important; height: 40px !important; min-height: 40px !important; max-height: 40px !important; padding: 4px 28px 4px 4px !important; overflow: hidden !important; border-radius: 50px !important; box-sizing: border-box !important;">
+          <div style="display: flex !important; align-items: center !important; gap: 8px !important; min-width: 0 !important; width: 100% !important; overflow: hidden !important;">
+            {% with nombre=request.session.usuario_nombre|default:"Invitado" %}
+            <div class="profile-avatar-circle flex-shrink-0 fw-bold text-white">
+              {{ nombre|slice:":2"|upper }}
+            </div>
+            {% with partes=nombre.split %}
+            <span class="profile-pill-name" style="min-width: 0 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; text-align: left !important; display: block !important;">
+              {{ partes.0 }} {% if partes|length > 1 %}{{ partes.1 }}{% endif %}
+            </span>
+            {% endwith %}
+            {% endwith %}
+          </div>
+          <i class="bi bi-chevron-right profile-pill-caret" aria-hidden="true"></i>
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow aside-profile-dropdown">
+          <li>
+            <span class="dropdown-item-text profile-role-header">
+              <i class="bi bi-shield-check me-1"></i>
+              {% if request.session.usuario_documento %}Usuario{% else %}Invitado{% endif %}
+            </span>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'perfil' %}">
+              <i class="bi bi-person"></i> Mi perfil
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item d-flex align-items-center gap-2 text-danger" href="{% url 'logout' %}">
+              <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+            </a>
+          </li>
+        </ul>
+      </div><!-- /dropup -->
+
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+{% load static %}    
+{% block title %}Gestión de Usuarios – SENA Centro Minero{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/usuarios.css' %}">
+{% endblock css %}
+
+{% block content %}
+{% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-dismissible fade show d-flex align-items-center gap-2 mb-3"
+       style="background:{% if message.tags == 'error' %}rgba(220,38,38,.08){% else %}rgba(22,163,74,.08){% endif %};
+              border:1px solid {% if message.tags == 'error' %}rgba(220,38,38,.25){% else %}rgba(22,163,74,.25){% endif %};
+              border-radius:12px;color:#0f172a;" role="alert">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+         stroke="{% if message.tags == 'error' %}#dc2626{% else %}#16a34a{% endif %}" stroke-width="2.2">
+      {% if message.tags == 'error' %}
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      {% else %}
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+      {% endif %}
+    </svg>
+    <span class="small fw-semibold">{{ message }}</span>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+{% endif %}
+
+<!-- ENCABEZADO PRINCIPAL -->
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 gu-page-header">
+  <div>
+    <h4 class="gu-title mb-1">
+      <i class="bi bi-people-fill text-primary me-2"></i>Gestión de Usuarios
+    </h4>
+    <p class="gu-subtitle">
+      Centro Minero · Regional Boyacá · Control de acceso y registros
+    </p>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <span class="gu-count-badge">
+      <i class="bi bi-person-check me-1"></i>{{ total }} usuario{{ total|pluralize:",s" }}
+    </span>
+    <a href="{% url 'exportar_usuarios_csv' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}"
+       class="btn btn-outline-secondary btn-sm gu-btn-action" title="Exportar registros a CSV">
+      <i class="bi bi-file-earmark-spreadsheet me-1"></i>Exportar CSV
+    </a>
+  </div>
+</div>
+
+<!-- BARRA DE FILTROS Y CONTROLES -->
+<div class="sfb-wrap mb-4">
+  <form method="get" id="filtroForm" class="d-contents">
+
+    <!-- Búsqueda -->
+    <div class="sfb-search-group">
+      <i class="bi bi-search sfb-search-icon"></i>
+      <input type="text" name="q" id="qInput" value="{{ q }}"
+             class="sfb-search-input"
+             placeholder="Nombre, documento, correo, ficha…">
+    </div>
+
+    <div class="sfb-divider"></div>
+
+    <!-- Filtro por Rol -->
+    <select name="rol" id="filtro_rol" class="sfb-select" onchange="this.form.submit()" aria-label="Filtrar por rol">
+      <option value="">Todos los roles</option>
+      {% for rol in roles %}
+        <option value="{{ rol.id }}" {% if rol_id == rol.id|stringformat:"s" %}selected{% endif %}>
+          {{ rol.nombre }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <!-- Filtro por tipo de documento -->
+    <select name="tipo_doc" id="filtro_tipo_doc" class="sfb-select" onchange="this.form.submit()" aria-label="Filtrar por tipo de documento">
+      <option value="">Todos los tipos</option>
+      {% for val, label in tipos_doc %}
+        <option value="{{ val }}" {% if tipo_doc == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+
+    <!-- Acciones + alternador de vista -->
+    <div class="sfb-actions">
+      <button type="submit" class="sfb-btn-primary">
+        <i class="bi bi-search"></i> Filtrar
+      </button>
+      {% if q or rol_id or tipo_doc %}
+      <a href="{% url 'lista_usuarios' %}" class="sfb-btn-secondary" title="Limpiar filtros">
+        <i class="bi bi-x-circle"></i> Limpiar
+      </a>
+      {% endif %}
+
+      <!-- Alternador de vistas (Lista / Cuadrícula) -->
+      <div class="gu-toggle-group ms-1">
+        <button type="button" id="btnFichas" class="gu-toggle-btn active" onclick="setVista('fichas')" title="Vista en tarjetas (Grid)">
+          <i class="bi bi-grid-fill"></i>
+        </button>
+        <button type="button" id="btnLista" class="gu-toggle-btn" onclick="setVista('lista')" title="Vista en tabla">
+          <i class="bi bi-list-ul"></i>
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+
+{% if usuarios %}
+
+<!-- ══ VISTA EN TARJETAS (GRID) ══ -->
+<div id="vistaFichas">
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+    {% for u in usuarios %}
+    <div class="col d-flex align-items-stretch">
+      <div class="gu-card w-100">
+        <!-- Barra de acento superior según rol -->
+        <div class="gu-card-accent-bar {% if u.rol == 'Administrador' %}gu-card-accent-admin{% else %}gu-card-accent-user{% endif %}"></div>
+
+        <div class="gu-card-inner">
+          <!-- Header de Tarjeta -->
+          <div class="gu-card-header">
+            <div class="gu-avatar {% if u.rol == 'Administrador' %}gu-avatar-admin{% else %}gu-avatar-user{% endif %}">
+              {{ u.nombre_completo|slice:":2"|upper }}
+            </div>
+            <div class="gu-user-meta">
+              <span class="gu-user-name" title="{{ u.nombre_completo }}">
+                {{ u.nombre_completo }}
+              </span>
+              <span class="gu-badge-role {% if u.rol == 'Administrador' %}gu-badge-admin{% else %}gu-badge-user{% endif %}">
+                <i class="bi {% if u.rol == 'Administrador' %}bi-shield-lock-fill{% else %}bi-person{% endif %} me-1"></i>{{ u.rol }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Cuerpo de Tarjeta con Datos Clave -->
+          <div class="gu-card-body">
+            <!-- Correo con truncamiento y tooltip -->
+            <div class="gu-info-row" title="{{ u.correo }}">
+              <div class="gu-info-icon">
+                <i class="bi bi-envelope"></i>
+              </div>
+              <span class="gu-info-text gu-info-email">
+                {{ u.correo|default:"Sin correo" }}
+              </span>
+            </div>
+
+            <!-- Documento -->
+            <div class="gu-info-row">
+              <div class="gu-info-icon">
+                <i class="bi bi-card-text"></i>
+              </div>
+              <span class="gu-info-text fw-semibold">
+                {{ u.get_tipo_documento_display }} · {{ u.numero_documento }}
+              </span>
+            </div>
+
+            <!-- Ficha / Programa -->
+            {% if u.numero_ficha %}
+            <div class="gu-info-row" title="{% if u.nombre_programa %}{{ u.nombre_programa }} — {% endif %}Ficha {{ u.numero_ficha }}">
+              <div class="gu-info-icon">
+                <i class="bi bi-mortarboard"></i>
+              </div>
+              <span class="gu-info-text">
+                <span class="gu-info-badge-ficha">Ficha {{ u.numero_ficha }}</span>
+                {% if u.nombre_programa %}
+                <span class="text-muted ms-1">· {{ u.nombre_programa }}</span>
+                {% endif %}
+              </span>
+            </div>
+            {% endif %}
+
+            <!-- Teléfono -->
+            {% if u.telefono %}
+            <div class="gu-info-row">
+              <div class="gu-info-icon">
+                <i class="bi bi-telephone"></i>
+              </div>
+              <span class="gu-info-text text-muted">
+                {{ u.telefono }}
+              </span>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Footer Anclado al Fondo -->
+          <div class="gu-card-footer">
+            <button type="button" class="btn btn-sm btn-outline-secondary gu-btn-view" onclick="verUsuario('{{ u.numero_documento }}')">
+              <i class="bi bi-eye"></i> Ver
+            </button>
+            <button type="button" class="btn btn-sm gu-btn-edit" onclick="abrirEditar('{{ u.numero_documento }}', '{{ u.nombre_completo|escapejs }}', '{{ u.correo|escapejs }}', '{{ u.telefono|default:''|escapejs }}', '{{ u.rol }}', '{{ u.tipo_documento }}', '{{ u.numero_ficha|default:''|escapejs }}', '{{ u.nombre_programa|default:''|escapejs }}')">
+              <i class="bi bi-pencil-square"></i> Editar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ══ VISTA EN TABLA ══ -->
+<div id="vistaLista" class="d-none">
+  <div class="gu-table-card">
+    <div class="table-responsive">
+      <table class="table gu-table mb-0 w-100" id="usuarios-table">
+        <thead>
+          <tr>
+            <th data-priority="1">Usuario</th>
+            <th data-priority="1">Documento</th>
+            <th data-priority="3">Correo Electrónico</th>
+            <th data-priority="2">Ficha / Programa</th>
+            <th data-priority="3">Teléfono</th>
+            <th data-priority="1">Rol</th>
+            <th class="text-center th-w-100" data-priority="1">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in usuarios %}
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="gu-avatar gu-avatar-{% if u.rol == 'Administrador' %}admin{% else %}user{% endif %} gu-avatar-sm">
+                  {{ u.nombre_completo|slice:":2"|upper }}
+                </div>
+                <span class="fw-bold gu-user-table-name">{{ u.nombre_completo }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="font-monospace text-muted">{{ u.get_tipo_documento_display }}</span> {{ u.numero_documento }}
+            </td>
+            <td>
+              <a href="mailto:{{ u.correo }}" class="text-decoration-none gu-info-email">{{ u.correo }}</a>
+            </td>
+            <td>
+              {% if u.numero_ficha %}
+                <span class="gu-info-badge-ficha">{{ u.numero_ficha }}</span>
+                <small class="text-muted d-block text-truncate max-w-200">{{ u.nombre_programa|default:"" }}</small>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="gu-info-text">{{ u.telefono|default:"—" }}</span>
+            </td>
+            <td>
+              <span class="gu-badge-role {% if u.rol == 'Administrador' %}gu-badge-admin{% else %}gu-badge-user{% endif %}">
+                {{ u.rol }}
+              </span>
+            </td>
+            <td class="text-center">
+              <div class="sbm-actions-group justify-content-center">
+                <button type="button" class="sbm-action-btn sbm-btn-view" onclick="verUsuario('{{ u.numero_documento }}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles de {{ u.nombre_completo }}" aria-label="Ver detalles de {{ u.nombre_completo }}">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button type="button" class="sbm-action-btn sbm-btn-edit" onclick="abrirEditar('{{ u.numero_documento }}', '{{ u.nombre_completo|escapejs }}', '{{ u.correo|escapejs }}', '{{ u.telefono|default:''|escapejs }}', '{{ u.rol }}', '{{ u.tipo_documento }}', '{{ u.numero_ficha|default:''|escapejs }}', '{{ u.nombre_programa|default:''|escapejs }}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar a {{ u.nombre_completo }}" aria-label="Editar a {{ u.nombre_completo }}">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<!-- ESTADO VACÍO -->
+<div class="card border-0 shadow-sm rounded-4 p-5 text-center my-4 gu-filter-card">
+  <div class="py-4">
+    <div class="mx-auto mb-3 gu-empty-icon">
+      <i class="bi bi-person-x"></i>
+    </div>
+    <h5 class="fw-bold gu-text-name-color">No se encontraron usuarios</h5>
+    <p class="small mb-3 gu-text-muted-color">No hay coincidencias para los criterios o filtros de búsqueda seleccionados.</p>
+    {% if q or rol_id or tipo_doc %}
+    <a href="{% url 'lista_usuarios' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+      <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar filtros
+    </a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{# ══ MODAL VER USUARIO ══ #}
+<div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+
+      <div class="modal-header bg-light py-3 border-0">
+        <div class="d-flex align-items-center gap-3">
+          <div id="modalAvatar" class="gu-avatar gu-avatar-admin gu-avatar-md"></div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0 text-dark" id="modalUsuarioLabel"></h5>
+            <span class="gu-badge-role mt-1" id="modalRol"></span>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <div id="modalSkeleton">
+          <div class="placeholder-glow">
+            <span class="placeholder col-7 mb-2"></span>
+            <span class="placeholder col-4 mb-2"></span>
+            <span class="placeholder col-6 mb-2"></span>
+            <span class="placeholder col-8"></span>
+          </div>
+        </div>
+
+        <div id="modalDatos" class="d-none">
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <div class="small text-muted mb-1">Tipo de documento</div>
+              <div class="fw-semibold text-dark" id="mTipoDoc"></div>
+            </div>
+            <div class="col-6">
+              <div class="small text-muted mb-1">Número de documento</div>
+              <div class="fw-semibold text-dark font-monospace" id="mNumDoc"></div>
+            </div>
+            <div class="col-6">
+              <div class="small text-muted mb-1">Correo electrónico</div>
+              <div class="fw-semibold text-break" id="mCorreo"></div>
+            </div>
+            <div class="col-6">
+              <div class="small text-muted mb-1">Teléfono</div>
+              <div class="fw-semibold text-dark" id="mTelefono"></div>
+            </div>
+            <div class="col-6">
+              <div class="small text-muted mb-1">Número de ficha</div>
+              <div class="fw-semibold text-dark" id="mNumFicha"></div>
+            </div>
+            <div class="col-6">
+              <div class="small text-muted mb-1">Programa de formación</div>
+              <div class="fw-semibold text-dark text-truncate" id="mPrograma"></div>
+            </div>
+          </div>
+
+          <div class="border-top pt-3 mb-2">
+            <span class="small fw-bold text-muted text-uppercase tracking-wider">Historial de préstamos</span>
+          </div>
+          <div class="row g-2 mb-2">
+            <div class="col-4">
+              <div class="bg-light p-2 rounded text-center">
+                <div class="small text-muted">Total</div>
+                <div id="mPrestamosTotal" class="fw-bold fs-5 text-dark">0</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="bg-light p-2 rounded text-center">
+                <div class="small text-muted">Activos</div>
+                <div id="mPrestamosActivos" class="fw-bold fs-5 text-success">0</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="bg-light p-2 rounded text-center">
+                <div class="small text-muted">Parciales</div>
+                <div id="mPrestamosPendientes" class="fw-bold fs-5 text-warning">0</div>
+              </div>
+            </div>
+          </div>
+          <div id="mPrestamosList" class="mb-3"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer bg-light py-3 border-0">
+        <small id="mIdDoc" class="text-muted font-monospace me-auto"></small>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btnEditarDesdeModal">
+          <i class="bi bi-pencil me-1"></i> Editar usuario
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ MODAL EDITAR USUARIO ══ #}
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+
+      <div class="modal-header bg-light py-3 border-0">
+        <div class="d-flex align-items-center gap-3">
+          <div id="editAvatar" class="gu-avatar gu-avatar-admin gu-avatar-edit"></div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0 text-dark">Editar Usuario</h5>
+            <span class="small text-muted font-monospace" id="editDocLabel"></span>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form method="post" action="{% url 'lista_usuarios' %}" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="editar_usuario">
+        <input type="hidden" name="numero_documento" id="edit_doc_hidden">
+
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="edit_tipo_doc_display" class="form-label small fw-bold">Tipo de documento</label>
+              <input type="text" id="edit_tipo_doc_display" class="form-control form-control-sm bg-light" disabled>
+            </div>
+            <div class="col-md-8">
+              <label for="edit_num_doc_display" class="form-label small fw-bold">Número de documento</label>
+              <input type="text" id="edit_num_doc_display" class="form-control form-control-sm bg-light" disabled>
+              <small class="text-muted">El documento no puede modificarse directamente.</small>
+            </div>
+
+            <div class="col-12">
+              <label for="edit_nombre" class="form-label small fw-bold">Nombre completo *</label>
+              <input type="text" name="nombre_completo" id="edit_nombre" class="form-control form-control-sm" placeholder="Nombre completo" required>
+            </div>
+
+            <div class="col-md-7">
+              <label for="edit_correo" class="form-label small fw-bold">Correo electrónico *</label>
+              <input type="email" name="correo" id="edit_correo" class="form-control form-control-sm" placeholder="correo@ejemplo.com" required>
+            </div>
+
+            <div class="col-md-5">
+              <label for="edit_telefono" class="form-label small fw-bold">Teléfono</label>
+              <input type="text" name="telefono" id="edit_telefono" class="form-control form-control-sm" placeholder="Ej: 3001234567" maxlength="20">
+            </div>
+
+            <div class="col-md-6">
+              <label for="edit_ficha" class="form-label small fw-bold">Número de ficha</label>
+              <input type="text" name="numero_ficha" id="edit_ficha" class="form-control form-control-sm" placeholder="Número de ficha">
+            </div>
+
+            <div class="col-md-6">
+              <label for="edit_programa" class="form-label small fw-bold">Nombre del programa</label>
+              <input type="text" name="nombre_programa" id="edit_programa" class="form-control form-control-sm" placeholder="Programa de formación">
+            </div>
+
+            <div class="col-md-6">
+              <label for="edit_rol" class="form-label small fw-bold">Rol *</label>
+              <select name="rol" id="edit_rol" class="form-select form-select-sm" required>
+                {% for rol in roles %}
+                <option value="{{ rol.id }}">{{ rol.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="edit_password" class="form-label small fw-bold">Nueva contraseña <span class="text-muted fw-normal">(opcional)</span></label>
+              <div class="position-relative">
+                <input type="password" name="nueva_password" id="edit_password" class="form-control form-control-sm" placeholder="Mínimo 8 caracteres" minlength="8">
+                <button type="button" id="toggleEditPw" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted p-1 me-1 text-decoration-none">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light py-3 border-0">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-sm">
+            <i class="bi bi-check-lg me-1"></i> Guardar cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'js/usuarios_gestion.js' %}"></script>
+{% endblock js %}

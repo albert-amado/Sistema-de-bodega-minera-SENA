@@ -1,0 +1,514 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+{# ══ CABECERA ══ #}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h5 class="fw-bold mb-1">Préstamos</h5>
+    <p class="text-muted small mb-0">Gestión de préstamos de herramientas e inventario</p>
+  </div>
+  <button class="btn btn-sbm-primary btn-sm rounded-pill px-3 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalCrearPrestamo">
+    <i class="bi bi-plus-lg"></i> Nuevo Préstamo
+  </button>
+</div>
+
+{# ══ KPI CARDS ══ #}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-2">
+    <div class="card h-100 p-3 text-center border-0 shadow-sm kpi-card" data-kpi-delay="0">
+      <div class="text-muted small fw-semibold">Total</div>
+      <div class="fs-4 fw-bold text-dark kpi-number" data-target="{{ total_prestamos }}">0</div>
+      <div class="text-muted small">registros</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="card h-100 p-3 text-center border-0 shadow-sm kpi-card" data-kpi-delay="80">
+      <div class="text-muted small fw-semibold">Entregados</div>
+      <div class="fs-4 fw-bold kpi-number kpi-color-warn" data-target="{{ prestamos_activos|default:0 }}">0</div>
+      <div class="text-muted small">en uso</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="card h-100 p-3 text-center border-0 shadow-sm kpi-card" data-kpi-delay="160">
+      <div class="text-muted small fw-semibold">Pendientes</div>
+      <div class="fs-4 fw-bold kpi-number kpi-color-amber" data-target="{{ prestamos_pendientes|default:0 }}">0</div>
+      <div class="text-muted small">por entregar</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="card h-100 p-3 text-center border-0 shadow-sm kpi-card" data-kpi-delay="240">
+      <div class="text-muted small fw-semibold">Devueltos</div>
+      <div class="fs-4 fw-bold kpi-number kpi-color-ok" data-target="{{ prestamos_devueltos|default:0 }}">0</div>
+      <div class="text-muted small">completados</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="card h-100 p-3 text-center border-0 shadow-sm kpi-card" data-kpi-delay="320">
+      <div class="text-muted small fw-semibold">Parciales</div>
+      <div class="fs-4 fw-bold kpi-number kpi-color-rock" data-target="{{ prestamos_parciales|default:0 }}">0</div>
+      <div class="text-muted small">incompletos</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="card h-100 p-3 text-center border-0 shadow-sm kpi-card" data-kpi-delay="400">
+      <div class="text-muted small fw-semibold">Cancelados</div>
+      <div class="fs-4 fw-bold kpi-number kpi-color-danger" data-target="{{ prestamos_cancelados|default:0 }}">0</div>
+      <div class="text-muted small">rechazados</div>
+    </div>
+  </div>
+</div>
+
+{# ══ FILTROS EN TIEMPO REAL ══ #}
+<div class="sfb-wrap mb-4">
+  <!-- Búsqueda en tiempo real (Largo a todo el ancho disponible) -->
+  <div class="sfb-search-group" style="display: block !important; flex: 1 1 auto !important; width: 100% !important; min-width: 0 !important; position: relative !important;">
+    <i class="bi bi-search sfb-search-icon"></i>
+    <input type="text" id="prestamo-busqueda" class="sfb-search-input"
+           style="display: block !important; width: 100% !important; box-sizing: border-box !important;"
+           placeholder="Buscar por ID, solicitante, documento, ficha o herramienta…"
+           value="{{ filtro_q|default:'' }}"
+           aria-label="Buscar préstamos por ID, solicitante, documento o herramienta"
+           autocomplete="off">
+  </div>
+
+  <div class="sfb-divider"></div>
+
+  <!-- Selector de Estado -->
+  <select id="prestamo-estado" class="sfb-select" style="flex: 0 0 auto; width: auto; min-width: 220px;" aria-label="Filtrar por estado del préstamo">
+    <option value="">— Todos los Estados —</option>
+    <option value="PENDIENTE" {% if filtro_estado == 'PENDIENTE' or filtro_estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+    <option value="ENTREGADO" {% if filtro_estado == 'ENTREGADO' or filtro_estado == 'entregado' or filtro_estado == 'activo' %}selected{% endif %}>Entregado</option>
+    <option value="PARCIAL" {% if filtro_estado == 'PARCIAL' or filtro_estado == 'parcial' %}selected{% endif %}>Devolución Parcial</option>
+    <option value="DEVUELTO" {% if filtro_estado == 'DEVUELTO' or filtro_estado == 'devuelto' %}selected{% endif %}>Devuelto</option>
+    <option value="CANCELADO" {% if filtro_estado == 'CANCELADO' or filtro_estado == 'cancelado' %}selected{% endif %}>Cancelado</option>
+  </select>
+
+  <div class="sfb-divider"></div>
+
+  <!-- Limpiar -->
+  <button type="button" id="btn-limpiar-filtros" class="sfb-btn-secondary" style="flex: 0 0 auto;" title="Limpiar filtros">
+    <i class="bi bi-x-circle"></i> Limpiar
+  </button>
+</div>
+
+
+{# ══ TABLA DE PRÉSTAMOS ══ #}
+<div class="card table-card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <div class="p-2 rounded-3 bg-light border text-warning d-flex align-items-center justify-content-center sbm-icon-box-34">
+        <i class="bi bi-journal-text fs-5"></i>
+      </div>
+      <div>
+        <h6 class="fw-bold mb-0 text-dark">Registro de préstamos</h6>
+        <small class="text-muted">Control de solicitudes, entregas y estados de préstamo</small>
+      </div>
+    </div>
+    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill font-monospace small">
+      <i class="bi bi-layers me-1 text-warning"></i>{{ prestamos|length }} registro{{ prestamos|length|pluralize }}
+    </span>
+  </div>
+
+  <div class="table-responsive px-3 pb-3 pt-2">
+    <table class="table table-hover align-middle datatable-custom w-100" id="prestamo-table">
+      <thead class="table-light">
+        <tr class="text-secondary small fw-bold text-uppercase th-tracking">
+          <th class="text-center th-w-75" data-priority="2"># ID</th>
+          <th data-priority="1">Herramientas Solicitadas</th>
+          <th data-priority="1">Solicitante / Responsable</th>
+          <th class="text-center th-w-110" data-priority="3">Ficha SENA</th>
+          <th class="text-center th-w-125" data-priority="1">Estado</th>
+          <th class="text-center th-w-110" data-priority="2">Fecha</th>
+          <th class="text-center th-w-140" data-priority="1">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in prestamos %}
+        <tr>
+          <!-- # ID -->
+          <td class="text-center" data-order="{{ p.pk }}">
+            <span class="badge bg-light text-secondary border font-monospace px-2 py-1">
+              #{{ p.pk }}
+            </span>
+          </td>
+
+          <!-- Herramientas Solicitadas -->
+          <td>
+            <div class="d-flex flex-wrap gap-1 align-items-center max-w-290">
+              {% for item in p.detalles.all %}
+              <span class="badge bg-light text-dark border px-2 py-1 rounded-pill d-inline-flex align-items-center gap-1 shadow-xs badge-item-tool" title="{{ item.herramienta.nombre }}">
+                <i class="bi bi-tools text-warning"></i>
+                <span class="text-truncate max-w-130">{{ item.herramienta.nombre }}</span>
+                <span class="badge bg-dark text-white rounded-pill ms-1 px-1 badge-item-qty">×{{ item.cantidad }}</span>
+              </span>
+              {% empty %}
+              <span class="text-muted small fst-italic">Sin herramientas</span>
+              {% endfor %}
+            </div>
+          </td>
+
+          <!-- Solicitante / Documento -->
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="rounded-circle bg-light border text-dark d-flex align-items-center justify-content-center fw-bold flex-shrink-0 sbm-avatar-doc">
+                {{ p.documento.primer_nombre|slice:":1"|default:"P" }}
+              </div>
+              <div class="overflow-hidden max-w-200">
+                <div class="fw-semibold text-dark text-truncate" title="{{ p.documento.nombre_completo|default:p.documento|default:'Solicitante' }}">
+                  {{ p.documento.nombre_completo|default:p.documento|default:"Solicitante" }}
+                </div>
+                <div class="text-muted extra-small font-monospace text-truncate fs-xs">
+                  Doc: {{ p.documento.tipo_documento }} {{ p.documento.documento }}
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <!-- Ficha SENA -->
+          <td class="text-center">
+            {% if p.ficha %}
+            <span class="badge bg-light text-muted border px-2 py-1 font-monospace fs-sm-badge">
+              <i class="bi bi-bookmark-fill text-warning me-1"></i>{{ p.ficha }}
+            </span>
+            {% else %}
+            <span class="text-muted small">—</span>
+            {% endif %}
+          </td>
+
+          <!-- Estado -->
+          <td class="text-center col-estado" data-estado="{{ p.estado|upper }}">
+            {% if p.estado == 'DEVUELTO' or p.estado == 'devuelto' %}
+              <span class="badge-state badge-aprobada">Devuelto</span>
+            {% elif p.estado == 'ENTREGADO' or p.estado == 'entregado' or p.estado == 'activo' %}
+              <span class="badge-state badge-pendiente">Entregado</span>
+            {% elif p.estado == 'PENDIENTE' or p.estado == 'pendiente' %}
+              <span class="badge-state badge-pendiente">Pendiente</span>
+            {% elif p.estado == 'PARCIAL' or p.estado == 'parcial' %}
+              <span class="badge-state badge-pendiente">Parcial</span>
+            {% elif p.estado == 'CANCELADO' or p.estado == 'cancelado' or p.estado == 'vencido' or p.estado == 'atrasado' %}
+              <span class="badge-state badge-rechazada">Cancelado</span>
+            {% else %}
+              <span class="badge-state badge-pendiente">{{ p.get_estado_display }}</span>
+            {% endif %}
+          </td>
+
+          <!-- Fecha -->
+          <td class="text-center text-nowrap">
+            <div class="d-inline-flex align-items-center gap-1 text-secondary font-monospace small px-2 py-1 rounded bg-light border">
+              <i class="bi bi-calendar3 text-muted"></i>
+              <span>{{ p.fecha|date:"d/m/Y" }}</span>
+            </div>
+          </td>
+
+          <!-- Acciones -->
+          <td class="text-center text-nowrap">
+            <div class="sbm-actions-group justify-content-center">
+              <button type="button" class="sbm-action-btn sbm-btn-view"
+                      data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles del préstamo #{{ p.pk }}"
+                      aria-label="Ver detalles del préstamo #{{ p.pk }} de {{ p.documento.nombre_completo|default:p.documento|escapejs }}"
+                      onclick="window.mostrarModalDetalles({
+                        title: 'Préstamo #{{ p.pk }}',
+                        subtitle: 'Solicitante: {{ p.documento.nombre_completo|default:p.documento|escapejs }}',
+                        badge: '{{ p.get_estado_display|upper }}',
+                        icon: 'bi-box-seam',
+                        fields: [
+                          { label: 'ID Préstamo', value: '#{{ p.pk }}' },
+                          { label: 'Estado', value: '{{ p.get_estado_display }}', isBadge: true, badgeClass: '{% if p.estado == "DEVUELTO" or p.estado == "devuelto" %}sbm-badge-disponible{% elif p.estado == "CANCELADO" or p.estado == "cancelado" or p.estado == "vencido" %}sbm-badge-agotado{% else %}sbm-badge-critico{% endif %}' },
+                          { label: 'Solicitante', value: '{{ p.documento.nombre_completo|default:p.documento|escapejs }}' },
+                          { label: 'Documento', value: '{{ p.documento.tipo_documento }} {{ p.documento.documento }}' },
+                          { label: 'Ficha SENA', value: '{{ p.ficha|default:"No registrada"|escapejs }}' },
+                          { label: 'Fecha Solicitud', value: '{{ p.fecha|date:"d/m/Y" }}' },
+                          { label: 'Herramientas', value: '{% for item in p.detalles.all %}{{ item.herramienta.nombre|escapejs }} (×{{ item.cantidad }}){% if not forloop.last %}, {% endif %}{% empty %}Sin herramientas asignadas{% endfor %}', col: 12 },
+                          { label: 'Observaciones', value: '{{ p.observaciones|default:"Sin observaciones registradas."|escapejs }}', col: 12 }
+                        ]
+                      })">
+                <i class="bi bi-eye"></i>
+              </button>
+
+              {% if p.estado == 'PENDIENTE' or p.estado == 'pendiente' %}
+              <button type="button" class="sbm-action-btn sbm-btn-success btn-aprobar-solicitud"
+                      data-pk="{{ p.pk }}"
+                      data-nombre="{{ p.documento.nombre_completo|default:p.documento|escapejs }}"
+                      data-usuario="{{ p.documento|escapejs }}"
+                      data-motivo="{% if p.observaciones %}{{ p.observaciones|escapejs }}{% endif %}"
+                      data-fecha="{{ p.fecha|date:'d/m/Y' }}"
+                      data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="Entregar préstamo"
+                      aria-label="Entregar préstamo #{{ p.pk }}">
+                <span class="items-json d-none">
+                  [
+                    {% for item in p.detalles.all %}
+                      {
+                        "id": {{ item.pk }},
+                        "nombre": "{{ item.herramienta.nombre|escapejs }}",
+                        "sku": "{{ item.herramienta.codigo|escapejs }}",
+                        "cantidad": {{ item.cantidad }},
+                        "stock": {{ item.herramienta.stock_disponible|default:0 }}
+                      }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                  ]
+                </span>
+                <i class="bi bi-check-lg"></i>
+              </button>
+              {% endif %}
+
+              {% if p.estado in 'ENTREGADO,PARCIAL,activo,parcial' %}
+              <button type="button" class="sbm-action-btn sbm-btn-success btn-devolver-prestamo"
+                      data-pk="{{ p.pk }}"
+                      data-usuario="{{ p.documento.nombre_completo|default:p.documento|escapejs }}"
+                      data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="Registrar devolución"
+                      aria-label="Registrar devolución de préstamo #{{ p.pk }}">
+                <i class="bi bi-arrow-return-left"></i>
+              </button>
+              {% endif %}
+
+              <button type="button" class="sbm-action-btn sbm-btn-edit"
+                      data-bs-toggle="modal" data-bs-target="#modalEditarPrestamo"
+                      data-pk="{{ p.pk }}"
+                      data-observaciones="{{ p.observaciones|escapejs }}"
+                      title="Editar observaciones"
+                      aria-label="Editar observaciones de préstamo #{{ p.pk }}">
+                <i class="bi bi-pencil"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center py-4 text-muted">
+            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+            No hay préstamos registrados.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{# ══ MODAL APROBAR ══ #}
+<div class="modal fade" id="modalAprobarPrestamo" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title" id="apr-titulo">Aprobar solicitud</h5>
+          <div class="small text-muted" id="apr-subtitulo">Verifica la información antes de entregar</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'prestamo' %}" id="formAprobar" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="aprobar_pendiente_modal">
+        <input type="hidden" name="prestamo_pk" id="apr-pk">
+        <div class="modal-body">
+          <div class="row g-2 mb-3 p-2 bg-light rounded small">
+            <div class="col-md-4"><strong>Solicitante:</strong> <span id="apr-nombre"></span></div>
+            <div class="col-md-4"><strong>Documento:</strong> <span id="apr-doc"></span></div>
+            <div class="col-md-4"><strong>Fecha:</strong> <span id="apr-fecha"></span></div>
+          </div>
+          <div id="apr-motivo-wrap" class="mb-3">
+            <h6 class="small fw-bold">Observaciones:</h6>
+            <div id="apr-motivo" class="small text-muted p-2 bg-light rounded"></div>
+          </div>
+          <h6 class="small fw-bold mb-2">Herramientas a entregar</h6>
+          <div id="apr-items-container"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-outline-danger btn-sm" onclick="abrirRechazar()"><i class="bi bi-x-circle"></i> Rechazar</button>
+          <button type="submit" name="accion_aprobacion" value="aprobar" class="btn btn-success btn-sm" id="apr-btn-aprobar">
+            <i class="bi bi-check-circle"></i> Entregar / Aprobar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{# ══ MODAL RECHAZAR ══ #}
+<div class="modal fade" id="modalRechazarPrestamo" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Rechazar solicitud <span id="rch-id"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'prestamo' %}">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="rechazar_pendiente">
+        <input type="hidden" name="prestamo_pk" id="rch-pk">
+        <div class="modal-body">
+          <label for="motivo_rechazo" class="form-label small fw-semibold">Motivo del rechazo *</label>
+          <textarea name="motivo_rechazo" id="motivo_rechazo" class="form-control" rows="3" placeholder="Explica por qué se rechaza..." required></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger btn-sm">Confirmar rechazo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{# ══ MODAL DEVOLVER ══ #}
+<div class="modal fade" id="modalDevolverPrestamo" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Devolución — <span id="dev-usuario"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center py-4">
+        <p class="mb-2">Expande la fila <strong>#<span id="dev-pk"></span></strong> en la tabla de préstamos para consultar los ítems prestados.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm" onclick="abrirDevoluciones()">Entendido</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ MODAL EDITAR ══ #}
+<div class="modal fade" id="modalEditarPrestamo" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar préstamo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'prestamo' %}" id="formEditarPrestamo">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="editar">
+        <input type="hidden" name="prestamo_pk" id="edit_pk">
+        <div class="modal-body">
+          <label for="edit_observaciones" class="form-label small fw-semibold">Observaciones</label>
+          <textarea name="observaciones" id="edit_observaciones" class="form-control" rows="3" placeholder="Notas sobre el préstamo..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-sm">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{# ══ MODAL NUEVO PRÉSTAMO (WIZARD) ══ #}
+<div class="modal fade" id="modalCrearPrestamo" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title" id="wizard-title">Paso 1: Responsable del préstamo</h5>
+          <div class="small text-muted" id="wizard-subtitle">Ingresa datos del solicitante y ficha</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form method="post" action="{% url 'prestamo' %}" id="wizardForm" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="crear_prestamo">
+
+        <div class="px-3 pt-2">
+          <div id="wizard-progress-bar" class="d-flex justify-content-between"></div>
+        </div>
+
+        <div class="modal-body">
+          {# PASO 1 #}
+          <div id="step-1" class="wizard-step">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="id_documento" class="form-label small fw-semibold">Documento *</label>
+                <input type="text" name="documento" id="id_documento" class="form-control form-control-sm" placeholder="Número de documento" required>
+              </div>
+              <div class="col-md-6">
+                <label for="id_ficha" class="form-label small fw-semibold">Ficha SENA *</label>
+                <input type="text" name="ficha" id="id_ficha" class="form-control form-control-sm" placeholder="Ej: 2670123" required>
+              </div>
+              <div class="col-md-6">
+                <label for="id_usuario" class="form-label small fw-semibold">Usuario (Sistema)</label>
+                <select name="usuario" id="id_usuario" class="form-select form-select-sm">
+                  <option value="">— Selecciona usuario —</option>
+                  {% for u in usuarios_sistema %}
+                  <option value="{{ u.pk }}" data-doc="{{ u.documento }}" data-nombre="{{ u.nombre_completo|default:u.documento }}">
+                    {{ u.nombre_completo|default:u.documento }} — {{ u.documento }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="id_fecha" class="form-label small fw-semibold">Fecha del préstamo</label>
+                <input type="date" name="fecha" id="id_fecha" class="form-control form-control-sm" value="{% now 'Y-m-d' %}">
+              </div>
+            </div>
+          </div>
+
+          {# PASO 2 #}
+          <div id="step-2" class="wizard-step" style="display: none;">
+            <div id="crear-items-container">
+              <div class="crear-item-row row g-2 align-items-start mb-2">
+                <div class="col">
+                  <select name="herramienta[]" class="form-select form-select-sm crear-prod-sel" aria-label="Seleccionar herramienta" required>
+                    <option value="">— Selecciona herramienta —</option>
+                    {% for h in herramientas|default:productos %}
+                    <option value="{{ h.pk }}" data-stock="{{ h.stock_disponible|default:0 }}">
+                      [{{ h.codigo }}] {{ h.nombre }} — Stock: {{ h.stock_disponible|default:0 }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-auto w-input-sm">
+                  <input type="number" name="cantidad[]" class="form-control form-control-sm text-center" min="1" max="50" step="1" pattern="\d*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="1" placeholder="Cant." aria-label="Cantidad" required>
+                </div>
+                <div class="col-auto">
+                  <button type="button" class="btn btn-outline-danger btn-sm crear-del-btn disabled" aria-label="Eliminar herramienta">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button type="button" id="crear-add-item" class="btn btn-outline-primary btn-sm">
+              <i class="bi bi-plus-circle me-1"></i> Añadir otra herramienta
+            </button>
+          </div>
+
+          {# PASO 3 #}
+          <div id="step-3" class="wizard-step" style="display: none;">
+            <label for="wizard_observaciones" class="form-label small fw-semibold">Observaciones</label>
+            <textarea name="observaciones" id="wizard_observaciones" class="form-control form-control-sm" rows="3" maxlength="500" placeholder="Notas sobre el préstamo"></textarea>
+          </div>
+
+          {# PASO 4 #}
+          <div id="step-4" class="wizard-step" style="display: none;">
+            <h6 class="fw-bold mb-2">Resumen del Préstamo</h6>
+            <div id="summary-usuario" class="p-2 bg-light rounded small mb-3"></div>
+            <h6 class="fw-bold mb-2">Herramientas a prestar</h6>
+            <div id="summary-items" class="d-flex flex-column gap-2"></div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-prev" style="display: none;">Anterior</button>
+          <button type="button" id="btn-next" class="btn btn-primary btn-sm">Siguiente</button>
+          <button type="submit" id="btn-submit" class="btn btn-success btn-sm" style="display: none;">Confirmar y registrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script id="herramientas-data" type="application/json">{{ herramientas_json|default:productos_json|safe }}</script>
+<script id="productos-data" type="application/json">{{ herramientas_json|default:productos_json|safe }}</script>
+<script id="usuarios-data" type="application/json">{{ usuarios_json|safe }}</script>
+{% endblock %}
+
+{% block js %}
+<script defer src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script defer src="{% static 'js/datatables.min.js' %}?v=3"></script>
+<script defer src="{% static 'js/tables/prestamos_table.js' %}?v=5"></script>
+<script defer src="{% static 'js/prestamos.js' %}?v=5"></script>
+{% endblock js %}
