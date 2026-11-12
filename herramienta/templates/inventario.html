@@ -11,30 +11,30 @@
     font-size: 2rem !important;
     font-weight: 800 !important;
     line-height: 1.1 !important;
-    color: var(--sbm-rock-900, #0F172A) !important;
+    color: var(--sbm-rock-900) !important;
     font-family: var(--font-title, 'Space Grotesk', sans-serif);
     letter-spacing: -0.02em;
   }
   .inv-kpi-value.danger {
-    color: var(--sbm-stock-danger-solid, #DC2626) !important;
+    color: var(--sbm-stock-danger-solid) !important;
   }
   .inv-kpi-value.warning {
-    color: var(--sbm-amber-600, #B45309) !important;
+    color: var(--sbm-amber-600) !important;
   }
   body.dark-mode .inv-kpi-value,
   body.dark-theme .inv-kpi-value,
   [data-theme="dark"] .inv-kpi-value {
-    color: #FFFFFF !important;
+    color: var(--sbm-white) !important;
   }
   body.dark-mode .inv-kpi-value.danger,
   body.dark-theme .inv-kpi-value.danger,
   [data-theme="dark"] .inv-kpi-value.danger {
-    color: #F87171 !important;
+    color: var(--red-400) !important;
   }
   body.dark-mode .inv-kpi-value.warning,
   body.dark-theme .inv-kpi-value.warning,
   [data-theme="dark"] .inv-kpi-value.warning {
-    color: #FBBF24 !important;
+    color: var(--sbm-amber-300) !important;
   }
 </style>
 {% endblock css %}
@@ -45,13 +45,13 @@
 {% for message in messages %}
 <div class="alert alert-dismissible fade show d-flex align-items-center gap-2 alert-custom" role="alert">
   {% if message.tags == 'error' %}
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.2">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--red-crimson)" stroke-width="2.2">
     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
     <line x1="12" y1="9" x2="12" y2="13" />
     <line x1="12" y1="17" x2="12.01" y2="17" />
   </svg>
   {% else %}
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2.2">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-emerald)" stroke-width="2.2">
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
     <polyline points="22 4 12 14.01 9 11.01" />
   </svg>

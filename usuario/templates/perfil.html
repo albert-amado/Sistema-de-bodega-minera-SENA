@@ -29,7 +29,7 @@
 {% if messages %}
   {% for message in messages %}
   <div class="alert alert-dismissible fade show d-flex align-items-center gap-2 mb-3 perfil__style-3" role="alert">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3a7a42" stroke-width="2.2">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green-sage-strong)" stroke-width="2.2">
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
     </svg>
     {{ message }}
@@ -48,12 +48,12 @@
 
         <div id="avatar-display"
              style="width:88px;height:88px;border-radius:50%;
-                    background:var(--rust);color:#fff;
+                    background:var(--rust);color:var(--sbm-white);
                     display:flex;align-items:center;justify-content:center;
                     font-family:var(--font-ui);font-weight:700;font-size:1.8rem;
                     letter-spacing:.04em;margin:0 auto 1.25rem;
-                    border:3px solid rgba(152,71,62,.25);
-                    box-shadow:0 4px 16px rgba(152,71,62,.2);">
+                    border:3px solid var(--alpha-rust-25);
+                    box-shadow:0 4px 16px var(--alpha-rust-20);">
           {{ usuario.nombre_completo|slice:":2"|upper }}
         </div>
 
@@ -132,7 +132,7 @@
         <div class="perfil__style-18">
           <div class="notif-channel-item d-flex align-items-center justify-content-between p-2 rounded">
             <div class="d-flex align-items-center gap-3 min-w-0">
-              <div class="notif-channel-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px; height:36px; background: rgba(9, 77, 146, 0.08); color: var(--navy);">
+              <div class="notif-channel-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px; height:36px; background: var(--alpha-navy-08); color: var(--navy);">
                 <i class="bi bi-box-arrow-right"></i>
               </div>
               <div class="min-w-0">
@@ -157,7 +157,7 @@
 
           <div class="notif-channel-item d-flex align-items-center justify-content-between p-2 rounded">
             <div class="d-flex align-items-center gap-3 min-w-0">
-              <div class="notif-channel-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px; height:36px; background: rgba(239, 68, 68, 0.08); color: var(--rust, #ef4444);">
+              <div class="notif-channel-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px; height:36px; background: var(--alpha-red-500-08); color: var(--rust);">
                 <i class="bi bi-exclamation-triangle"></i>
               </div>
               <div class="min-w-0">
@@ -182,7 +182,7 @@
 
           <div class="notif-channel-item d-flex align-items-center justify-content-between p-2 rounded">
             <div class="d-flex align-items-center gap-3 min-w-0">
-              <div class="notif-channel-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px; height:36px; background: rgba(58, 122, 66, 0.08); color: var(--sage, #3a7a42);">
+              <div class="notif-channel-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px; height:36px; background: var(--alpha-green-sage-08); color: var(--sage);">
                 <i class="bi bi-arrow-counterclockwise"></i>
               </div>
               <div class="min-w-0">
@@ -251,7 +251,7 @@
       <div class="modal-header perfil__style-19">
         <div class="perfil__style-20">
           <div style="width:36px;height:36px;border-radius:50%;
-                      background:rgba(152,71,62,.35);color:var(--cream);
+                      background:var(--alpha-rust-35);color:var(--cream);
                       display:flex;align-items:center;justify-content:center;
                       font-family:var(--font-ui);font-weight:700;font-size:.75rem;
                       flex-shrink:0;">

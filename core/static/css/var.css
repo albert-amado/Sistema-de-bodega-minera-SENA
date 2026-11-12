@@ -1,0 +1,684 @@
+/* ==========================================================================
+   SISTEMA DE BODEGA MINERA (SBM) — ARQUITECTURA CENTRAL DE COLOR (var.css)
+   Ruta: core/static/css/var.css
+   --------------------------------------------------------------------------
+   Sistema unificado de Design Tokens y Variables Semánticas de Color.
+   Centraliza:
+     1. Paleta Base Semántica (:root)
+     2. Escala Industrial SBM (Rock / Slate, Amber, Copper, Navy, Cream, Rust, Sage)
+     3. Tokens de Estado y Feedback (Stock, Alertas, Badges, Validación)
+     4. Tokens de Componentes (Gestión de Usuarios, Chatbot IA, Accesibilidad)
+     5. Capas de Transparencia, Sombras y Estados (Hover, Active, Focus)
+     6. Variaciones de Tema y Panel de Accesibilidad (Claro, Oscuro, Alto Contraste)
+   ========================================================================== */
+
+:root {
+  /* ─────────────────────────────────────────────────────────────────────────
+     1. VARIABLES SEMÁNTICAS PRINCIPALES (Core Design System)
+     ───────────────────────────────────────────────────────────────────────── */
+  --primary-color: #094d92;
+  --primary-hover: #063870;
+  --primary-active: #04294f;
+  --bg-color: #f1f5f9;
+  --bg-body: #f1f5f9;
+  --bg-surface: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-light: rgba(27, 32, 33, 0.13);
+  --border-color: #e2e8f0;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     2. PALETA INSTITUCIONAL HISTÓRICA & MARCA MINERA
+     ───────────────────────────────────────────────────────────────────────── */
+  --cream: #fbf8ee;
+  --cream-classic: #efecca;
+  --sage: #71816d;
+  --rust: #98473e;
+  --navy: #04294f;
+  --sbm-navy: #0f172a;
+  --dark: #1b2021;
+  --sbm-white: #ffffff;
+  --color-black: #000000;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     3. ESCALA INDUSTRIAL DE GRISES PIZARRA / ROCA (SBM Rock & Slate Scale)
+     ───────────────────────────────────────────────────────────────────────── */
+  --sbm-rock-950: #080e18;
+  --sbm-rock-900: #0f172a;
+  --sbm-rock-850: #131e30;
+  --sbm-rock-800: #1e293b;
+  --sbm-rock-700: #334155;
+  --sbm-rock-600: #475569;
+  --sbm-rock-500: #64748b;
+  --sbm-rock-400: #94a3b8;
+  --sbm-rock-300: #cbd5e1;
+  --sbm-rock-200: #e2e8f0;
+  --sbm-rock-100: #f1f5f9;
+  --sbm-rock-50: #f8fafc;
+
+  /* Tonos intermedios de pizarra, carbón y superficies neutras */
+  --slate-880: #1a2433;
+  --slate-820: #243248;
+  --slate-780: #2c3a4b;
+  --slate-650: #4a5868;
+  --slate-620: #4a5568;
+  --charcoal-700: #3a3a38;
+  --ink-950: #111111;
+  --ink-900: #222222;
+  --gray-600: #6c757d;
+  --gray-300: #cccccc;
+  --bg-slate-150: #edf2f7;
+  --bg-gray-100: #f0f0f0;
+  --bg-gray-50: #f8f9fa;
+  --bg-warm-page: #f5f4f0;
+  --bg-neutral-page: #f5f5f3;
+  --bg-cream-soft: #f6f4ef;
+  --bg-cream-light: #f9f7f3;
+  --cream-bell-bg: #efe9d7;
+  --cream-bell-border: #eadbca;
+  --cream-card-border: #e8dec8;
+  --cream-bell-hover: #e5dfc8;
+  --cream-bell-hover-border: #ddd5bc;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     4. ACENTOS MINEROS: ÁMBAR, ORO Y COBRE (Amber, Gold & Copper)
+     ───────────────────────────────────────────────────────────────────────── */
+  --sbm-amber-600: #b45309;
+  --sbm-amber-500: #d97706;
+  --sbm-amber-400: #f59e0b;
+  --sbm-amber-300: #fbbf24;
+  --sbm-amber-200: #fcd34d;
+  --sbm-amber-100: #fef3c7;
+  --sbm-amber-50: #fffbeb;
+  --amber-gold: #c4900a;
+  --amber-bronze: #b46414;
+  --amber-dark-brown: #7a5500;
+  --yellow-bright: #fde047;
+  --yellow-a11y-tint: #fff3b0;
+  --yellow-warm-tint: #fdf3d0;
+
+  --sbm-copper-600: #9a3412;
+  --sbm-copper-500: #c2410c;
+  --sbm-copper-400: #ea580c;
+  --copper-vivid: #cc3300;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     5. ESCALA AZUL MARINO, PRIMARIO Y CIELO (Navy, Royal Blue & Sky)
+     ───────────────────────────────────────────────────────────────────────── */
+  --navy-975: #070f1e;
+  --navy-950: #071525;
+  --navy-925: #08172b;
+  --navy-900: #0b1e36;
+  --navy-800: #043666;
+  --navy-750: #063462;
+  --navy-650: #153e75;
+  --blue-royal-dark: #0043a8;
+  --blue-classic-hover: #0056b3;
+  --blue-800: #1e40af;
+  --blue-700: #1d4ed8;
+  --blue-600: #2563eb;
+  --blue-500: #3b82f6;
+  --blue-400: #60a5fa;
+  --blue-300: #93c5fd;
+  --blue-200: #bfdbfe;
+  --blue-100: #dbeafe;
+  --blue-50: #eff6ff;
+  --blue-indigo-light: #5b8dee;
+  --blue-material-light: #64b5f6;
+  --blue-ice-bg: #f0f5fc;
+  --blue-slate-border: #d0dbea;
+  --blue-slate-light: #c2d2e8;
+  --blue-slate-muted: #8ca4c4;
+  --blue-slate-mid: #7e97b8;
+
+  --sky-950: #082f49;
+  --sky-700: #0369a1;
+  --sky-600: #0284c7;
+  --sky-400: #38bdf8;
+  --sky-300: #7dd3fc;
+  --sky-200: #bae6fd;
+  --sky-100: #e0f2fe;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     6. ESTADOS SEMÁNTICOS Y STOCK (Disponible, Crítico, Agotado, Validación)
+     ───────────────────────────────────────────────────────────────────────── */
+  /* Stock Disponible / Éxito (Verde / Esmeralda / Salvia) */
+  --sbm-stock-ok-text: #065f46;
+  --sbm-stock-ok-bg: #ecfdf5;
+  --sbm-stock-ok-border: #a7f3d0;
+  --sbm-stock-ok-solid: #059669;
+  --green-800: #166534;
+  --green-700: #15803d;
+  --green-600: #16a34a;
+  --green-500: #22c55e;
+  --green-400: #4ade80;
+  --green-300: #86efac;
+  --green-200: #bbf7d0;
+  --green-100: #dcfce7;
+  --green-50: #f0fdf4;
+  --green-emerald: #27ae60;
+  --emerald-600: #1d9e75;
+  --emerald-500: #10b981;
+  --emerald-300: #6ee7b7;
+  --green-excel: #107c41;
+  --green-excel-hover: #0d6334;
+  --green-forest: #1a7a40;
+  --green-deep: #1f6040;
+  --green-moss: #2b5430;
+  --green-sage-strong: #3a7a42;
+  --green-mint-bright: #4ec97b;
+  --green-mint-border: #aadcc4;
+  --green-mint-bg: #e5f3ec;
+  --green-sage-tint: #e6f0e8;
+  --teal-800: #115e59;
+  --teal-200: #99f6e4;
+  --teal-50: #f0fdfa;
+
+  /* Stock Bajo / Advertencia (Ámbar) */
+  --sbm-stock-warn-text: #92400e;
+  --sbm-stock-warn-bg: var(--sbm-amber-50);
+  --sbm-stock-warn-border: #fde68a;
+  --sbm-stock-warn-solid: var(--sbm-amber-500);
+
+  /* Sin Stock / Peligro / Error (Rojo / Terracota / Carmesí) */
+  --sbm-stock-danger-text: #991b1b;
+  --sbm-stock-danger-bg: #fef2f2;
+  --sbm-stock-danger-border: #fecaca;
+  --sbm-stock-danger-solid: #dc2626;
+  --red-950: #450a0a;
+  --red-900: #7f1d1d;
+  --red-700: #b91c1c;
+  --red-500: #ef4444;
+  --red-400: #f87171;
+  --red-300: #fca5a5;
+  --red-100: #fee2e2;
+  --red-crimson: #c0392b;
+  --red-badge: #d32f2f;
+  --red-coral: #d64541;
+  --rust-light: #e07a6e;
+  --red-muted: #cc7070;
+  --red-rose-border: #f3b8b5;
+  --red-rose-bg: #faeaea;
+  --red-soft-bg: #fde8e7;
+  --rust-hover: #93382d;
+  --rust-dark: #7a3530;
+  --rust-deep: #7c2a23;
+  --red-wine: #6e2020;
+  --crimson-admin: #8b1e0f;
+  --crimson-admin-border: #75190c;
+  --crimson-admin-hover: #73180b;
+  --crimson-admin-active: #5c1308;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     7. SUPERFICIES ESPECÍFICAS DE MODO OSCURO Y PANEL DE ACCESIBILIDAD
+     ───────────────────────────────────────────────────────────────────────── */
+  --dm-bg-root: #111212;
+  --dm-bg-deep-teal: #121a1c;
+  --dm-bg-carbon: #151717;
+  --dm-bg-slate-deep: #181d24;
+  --dm-bg-teal-dark: #182225;
+  --dm-bg-charcoal: #1a1e23;
+  --dm-bg-dropdown: #1e2227;
+  --dm-bg-surface-teal: #1e2a2d;
+  --dm-bg-card-teal: #243033;
+  --dm-bg-elevated: #252a2b;
+  --dm-bg-input-teal: #253539;
+  --dm-border-teal: #2a3233;
+
+  /* Panel de Accesibilidad WCAG 2.1 */
+  --a11y-ink: #12161a;
+  --a11y-caution: #ffc629;
+  --a11y-panel: #232a31;
+  --a11y-panel-hover: #323c46;
+  --a11y-muted: #c7ccd1;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     8. TOKENS DEL ASISTENTE VIRTUAL (Chatbot Widget)
+     ───────────────────────────────────────────────────────────────────────── */
+  --sbm-chat-primary: #0d6efd;
+  --sbm-chat-primary-hover: #0b5ed7;
+  --sbm-chat-success: #198754;
+  --sbm-chat-warning: #ffc107;
+  --sbm-chat-danger: #dc3545;
+  --sbm-chat-dark: var(--sbm-rock-900);
+  --sbm-chat-dark-surface: var(--sbm-rock-800);
+  --sbm-chat-border: var(--sbm-rock-700);
+  --sbm-chat-bg-user: var(--sbm-chat-primary);
+  --sbm-chat-bg-bot: var(--sbm-white);
+  --sbm-chat-text-dark: var(--sbm-rock-900);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     9. TOKENS DEL MÓDULO DE GESTIÓN DE USUARIOS (--gu-*)
+     ───────────────────────────────────────────────────────────────────────── */
+  --gu-card-bg: var(--sbm-white);
+  --gu-card-border: var(--sbm-rock-200);
+  --gu-card-shadow: 0 4px 14px var(--alpha-black-04);
+  --gu-card-hover-border: var(--sbm-rock-300);
+  --gu-text-name: var(--sbm-rock-900);
+  --gu-text-muted: var(--sbm-rock-500);
+  --gu-text-sub: var(--sbm-rock-700);
+  --gu-icon-color: var(--blue-600);
+  --gu-icon-bg: var(--sbm-rock-50);
+  --gu-icon-border: var(--sbm-rock-200);
+  --gu-badge-admin-bg: var(--sbm-stock-danger-bg);
+  --gu-badge-admin-color: var(--sbm-stock-danger-text);
+  --gu-badge-admin-border: var(--sbm-stock-danger-border);
+  --gu-badge-user-bg: var(--blue-50);
+  --gu-badge-user-color: var(--blue-700);
+  --gu-badge-user-border: var(--blue-200);
+  --gu-avatar-admin-bg: var(--red-100);
+  --gu-avatar-admin-color: var(--sbm-stock-danger-text);
+  --gu-avatar-admin-border: var(--red-300);
+  --gu-avatar-user-bg: var(--blue-100);
+  --gu-avatar-user-color: var(--blue-800);
+  --gu-avatar-user-border: var(--blue-300);
+  --gu-badge-ficha-bg: var(--sbm-rock-100);
+  --gu-badge-ficha-color: var(--sbm-rock-700);
+  --gu-filter-bg: var(--sbm-white);
+  --gu-filter-border: var(--sbm-rock-200);
+  --gu-filter-label: var(--sbm-rock-500);
+  --gu-input-bg: var(--sbm-rock-50);
+  --gu-input-border: var(--sbm-rock-300);
+  --gu-input-text: var(--sbm-rock-900);
+  --gu-input-placeholder: var(--sbm-rock-400);
+  --gu-btn-view-bg: var(--sbm-white);
+  --gu-btn-view-color: var(--sbm-rock-600);
+  --gu-btn-view-border: var(--sbm-rock-300);
+  --gu-btn-view-hover-bg: var(--sbm-rock-100);
+  --gu-btn-view-hover-color: var(--sbm-rock-900);
+  --gu-btn-edit-bg: var(--crimson-admin);
+  --gu-btn-edit-color: var(--sbm-white);
+  --gu-btn-edit-border: var(--crimson-admin-border);
+  --gu-btn-edit-hover-bg: var(--crimson-admin-hover);
+  --gu-table-bg: var(--sbm-white);
+  --gu-table-border: var(--sbm-rock-200);
+  --gu-table-th-bg: var(--sbm-rock-50);
+  --gu-table-th-color: var(--sbm-rock-600);
+  --gu-table-td-color: var(--sbm-rock-900);
+  --gu-table-tr-hover: var(--sbm-rock-50);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     10. CAPAS DE TRANSPARENCIA, BORDES Y SOMBRAS (RGBA Design Tokens)
+     ───────────────────────────────────────────────────────────────────────── */
+  /* Escala Alfa Negra (Sombras, Divisores, Overlays) */
+  --alpha-black-02: rgba(0, 0, 0, 0.02);
+  --alpha-black-03: rgba(0, 0, 0, 0.03);
+  --alpha-black-04: rgba(0, 0, 0, 0.04);
+  --alpha-black-05: rgba(0, 0, 0, 0.05);
+  --alpha-black-06: rgba(0, 0, 0, 0.06);
+  --alpha-black-07: rgba(0, 0, 0, 0.07);
+  --alpha-black-08: rgba(0, 0, 0, 0.08);
+  --alpha-black-09: rgba(0, 0, 0, 0.09);
+  --alpha-black-10: rgba(0, 0, 0, 0.1);
+  --alpha-black-12: rgba(0, 0, 0, 0.12);
+  --alpha-black-13: rgba(0, 0, 0, 0.13);
+  --alpha-black-14: rgba(0, 0, 0, 0.14);
+  --alpha-black-15: rgba(0, 0, 0, 0.15);
+  --alpha-black-20: rgba(0, 0, 0, 0.2);
+  --alpha-black-25: rgba(0, 0, 0, 0.25);
+  --alpha-black-28: rgba(0, 0, 0, 0.28);
+  --alpha-black-30: rgba(0, 0, 0, 0.3);
+  --alpha-black-35: rgba(0, 0, 0, 0.35);
+  --alpha-black-40: rgba(0, 0, 0, 0.4);
+  --alpha-black-45: rgba(0, 0, 0, 0.45);
+  --alpha-black-50: rgba(0, 0, 0, 0.5);
+  --alpha-black-55: rgba(0, 0, 0, 0.55);
+  --alpha-black-60: rgba(0, 0, 0, 0.6);
+  --alpha-black-65: rgba(0, 0, 0, 0.65);
+
+  /* Escala Alfa Blanca (Bordes Sutiles en Modo Oscuro, Glassmorphism) */
+  --alpha-white-035: rgba(255, 255, 255, 0.035);
+  --alpha-white-04: rgba(255, 255, 255, 0.04);
+  --alpha-white-05: rgba(255, 255, 255, 0.05);
+  --alpha-white-06: rgba(255, 255, 255, 0.06);
+  --alpha-white-07: rgba(255, 255, 255, 0.07);
+  --alpha-white-08: rgba(255, 255, 255, 0.08);
+  --alpha-white-09: rgba(255, 255, 255, 0.09);
+  --alpha-white-10: rgba(255, 255, 255, 0.1);
+  --alpha-white-12: rgba(255, 255, 255, 0.12);
+  --alpha-white-13: rgba(255, 255, 255, 0.13);
+  --alpha-white-14: rgba(255, 255, 255, 0.14);
+  --alpha-white-15: rgba(255, 255, 255, 0.15);
+  --alpha-white-16: rgba(255, 255, 255, 0.16);
+  --alpha-white-20: rgba(255, 255, 255, 0.2);
+  --alpha-white-22: rgba(255, 255, 255, 0.22);
+  --alpha-white-25: rgba(255, 255, 255, 0.25);
+  --alpha-white-30: rgba(255, 255, 255, 0.3);
+  --alpha-white-75: rgba(255, 255, 255, 0.75);
+  --alpha-white-80: rgba(255, 255, 255, 0.8);
+  --alpha-white-85: rgba(255, 255, 255, 0.85);
+
+  /* Escala Alfa Carbón / Dark (27, 32, 33) */
+  --alpha-dark-04: rgba(27, 32, 33, 0.04);
+  --alpha-dark-045: rgba(27, 32, 33, 0.045);
+  --alpha-dark-06: rgba(27, 32, 33, 0.06);
+  --alpha-dark-07: rgba(27, 32, 33, 0.07);
+  --alpha-dark-08: rgba(27, 32, 33, 0.08);
+  --alpha-dark-09: rgba(27, 32, 33, 0.09);
+  --alpha-dark-10: rgba(27, 32, 33, 0.1);
+  --alpha-dark-12: rgba(27, 32, 33, 0.12);
+  --alpha-dark-16: rgba(27, 32, 33, 0.16);
+  --alpha-dark-18: rgba(27, 32, 33, 0.18);
+  --alpha-dark-22: rgba(27, 32, 33, 0.22);
+  --alpha-dark-28: rgba(27, 32, 33, 0.28);
+
+  /* Escala Alfa Pizarra / Rock 900 (15, 23, 42) */
+  --alpha-rock-02: rgba(15, 23, 42, 0.02);
+  --alpha-rock-03: rgba(15, 23, 42, 0.03);
+  --alpha-rock-04: rgba(15, 23, 42, 0.04);
+  --alpha-rock-05: rgba(15, 23, 42, 0.05);
+  --alpha-rock-06: rgba(15, 23, 42, 0.06);
+  --alpha-rock-08: rgba(15, 23, 42, 0.08);
+  --alpha-rock-12: rgba(15, 23, 42, 0.12);
+  --alpha-rock-18: rgba(15, 23, 42, 0.18);
+  --alpha-rock-28: rgba(15, 23, 42, 0.28);
+
+  /* Escala Alfa Azul Marino / Primary (9, 77, 146) */
+  --alpha-navy-02: rgba(9, 77, 146, 0.02);
+  --alpha-navy-03: rgba(9, 77, 146, 0.03);
+  --alpha-navy-035: rgba(9, 77, 146, 0.035);
+  --alpha-navy-04: rgba(9, 77, 146, 0.04);
+  --alpha-navy-08: rgba(9, 77, 146, 0.08);
+  --alpha-navy-09: rgba(9, 77, 146, 0.09);
+  --alpha-navy-10: rgba(9, 77, 146, 0.1);
+  --alpha-navy-12: rgba(9, 77, 146, 0.12);
+  --alpha-navy-15: rgba(9, 77, 146, 0.15);
+  --alpha-navy-18: rgba(9, 77, 146, 0.18);
+  --alpha-navy-20: rgba(9, 77, 146, 0.2);
+  --alpha-navy-25: rgba(9, 77, 146, 0.25);
+  --alpha-navy-30: rgba(9, 77, 146, 0.3);
+  --alpha-navy-85: rgba(9, 77, 146, 0.85);
+
+  /* Escala Alfa Terracota / Rust (152, 71, 62) & Carmesí (139, 30, 15) */
+  --alpha-rust-03: rgba(152, 71, 62, 0.03);
+  --alpha-rust-04: rgba(152, 71, 62, 0.04);
+  --alpha-rust-08: rgba(152, 71, 62, 0.08);
+  --alpha-rust-10: rgba(152, 71, 62, 0.1);
+  --alpha-rust-15: rgba(152, 71, 62, 0.15);
+  --alpha-rust-20: rgba(152, 71, 62, 0.2);
+  --alpha-rust-22: rgba(152, 71, 62, 0.22);
+  --alpha-rust-25: rgba(152, 71, 62, 0.25);
+  --alpha-rust-28: rgba(152, 71, 62, 0.28);
+  --alpha-rust-30: rgba(152, 71, 62, 0.3);
+  --alpha-rust-35: rgba(152, 71, 62, 0.35);
+  --alpha-crimson-25: rgba(139, 30, 15, 0.25);
+  --alpha-crimson-45: rgba(139, 30, 15, 0.45);
+
+  /* Escala Alfa Crema (239, 236, 202) & Neutros Cálidos */
+  --alpha-cream-07: rgba(239, 236, 202, 0.07);
+  --alpha-cream-08: rgba(239, 236, 202, 0.08);
+  --alpha-cream-20: rgba(239, 236, 202, 0.2);
+  --alpha-cream-25: rgba(239, 236, 202, 0.25);
+  --alpha-cream-28: rgba(239, 236, 202, 0.28);
+  --alpha-cream-35: rgba(239, 236, 202, 0.35);
+  --alpha-cream-38: rgba(239, 236, 202, 0.38);
+  --alpha-cream-50: rgba(239, 236, 202, 0.5);
+  --alpha-cream-60: rgba(239, 236, 202, 0.6);
+  --alpha-cream-72: rgba(239, 236, 202, 0.72);
+  --alpha-cream-75: rgba(239, 236, 202, 0.75);
+  --alpha-cream-85: rgba(239, 236, 202, 0.85);
+  --alpha-warm-surface-80: rgba(245, 241, 237, 0.8);
+  --alpha-neutral-surface-90: rgba(245, 245, 245, 0.9);
+  --alpha-gold-sand-65: rgba(212, 170, 112, 0.65);
+  --alpha-stone-20: rgba(122, 117, 104, 0.2);
+  --alpha-sage-10: rgba(113, 129, 109, 0.1);
+
+  /* Escala Alfa Azul / Cielo / Índigo (Focus Rings, Sombras de Botón, Badges) */
+  --alpha-chat-blue-15: rgba(13, 110, 253, 0.15);
+  --alpha-chat-blue-16: rgba(13, 110, 253, 0.16);
+  --alpha-chat-blue-20: rgba(13, 110, 253, 0.2);
+  --alpha-chat-blue-25: rgba(13, 110, 253, 0.25);
+  --alpha-chat-blue-28: rgba(13, 110, 253, 0.28);
+  --alpha-chat-blue-35: rgba(13, 110, 253, 0.35);
+  --alpha-chat-blue-38: rgba(13, 110, 253, 0.38);
+  --alpha-chat-blue-40: rgba(13, 110, 253, 0.4);
+  --alpha-chat-blue-55: rgba(13, 110, 253, 0.55);
+  --alpha-blue-700-06: rgba(29, 78, 216, 0.06);
+  --alpha-blue-700-10: rgba(29, 78, 216, 0.1);
+  --alpha-blue-700-15: rgba(29, 78, 216, 0.15);
+  --alpha-blue-700-28: rgba(29, 78, 216, 0.28);
+  --alpha-blue-600-13: rgba(37, 99, 235, 0.13);
+  --alpha-blue-500-10: rgba(59, 130, 246, 0.1);
+  --alpha-blue-500-12: rgba(59, 130, 246, 0.12);
+  --alpha-blue-500-13: rgba(59, 130, 246, 0.13);
+  --alpha-blue-500-15: rgba(59, 130, 246, 0.15);
+  --alpha-blue-500-18: rgba(59, 130, 246, 0.18);
+  --alpha-blue-500-20: rgba(59, 130, 246, 0.2);
+  --alpha-blue-500-30: rgba(59, 130, 246, 0.3);
+  --alpha-blue-400-30: rgba(96, 165, 250, 0.3);
+  --alpha-blue-400-35: rgba(96, 165, 250, 0.35);
+  --alpha-indigo-15: rgba(91, 141, 238, 0.15);
+  --alpha-sky-soft-65: rgba(127, 179, 232, 0.65);
+  --alpha-sky-600-35: rgba(2, 132, 199, 0.35);
+  --alpha-sky-600-50: rgba(2, 132, 199, 0.5);
+  --alpha-sky-400-12: rgba(56, 189, 248, 0.12);
+  --alpha-sky-400-18: rgba(56, 189, 248, 0.18);
+  --alpha-sky-400-20: rgba(56, 189, 248, 0.2);
+  --alpha-sky-400-35: rgba(56, 189, 248, 0.35);
+  --alpha-sky-400-40: rgba(56, 189, 248, 0.4);
+  --alpha-sky-400-55: rgba(56, 189, 248, 0.55);
+  --alpha-sky-400-70: rgba(56, 189, 248, 0.7);
+  --alpha-slate-dark-15: rgba(34, 47, 62, 0.15);
+  --alpha-slate-mid-14: rgba(46, 61, 73, 0.14);
+
+  /* Escala Alfa Verde / Esmeralda / Salvia (Estados OK y Validación) */
+  --alpha-emerald-00: rgba(16, 185, 129, 0);
+  --alpha-emerald-15: rgba(16, 185, 129, 0.15);
+  --alpha-emerald-30: rgba(16, 185, 129, 0.3);
+  --alpha-emerald-70: rgba(16, 185, 129, 0.7);
+  --alpha-green-600-03: rgba(22, 163, 74, 0.03);
+  --alpha-green-600-08: rgba(22, 163, 74, 0.08);
+  --alpha-green-600-12: rgba(22, 163, 74, 0.12);
+  --alpha-green-600-13: rgba(22, 163, 74, 0.13);
+  --alpha-green-600-20: rgba(22, 163, 74, 0.2);
+  --alpha-green-600-22: rgba(22, 163, 74, 0.22);
+  --alpha-green-600-25: rgba(22, 163, 74, 0.25);
+  --alpha-green-600-30: rgba(22, 163, 74, 0.3);
+  --alpha-green-600-35: rgba(22, 163, 74, 0.35);
+  --alpha-green-500-13: rgba(34, 197, 94, 0.13);
+  --alpha-green-500-15: rgba(34, 197, 94, 0.15);
+  --alpha-green-500-35: rgba(34, 197, 94, 0.35);
+  --alpha-green-sage-08: rgba(58, 122, 66, 0.08);
+  --alpha-green-sage-10: rgba(58, 122, 66, 0.1);
+  --alpha-green-sage-20: rgba(58, 122, 66, 0.2);
+
+  /* Escala Alfa Ámbar / Amarillo / Oro (Advertencias y Resaltados) */
+  --alpha-amber-600-08: rgba(180, 83, 9, 0.08);
+  --alpha-gold-10: rgba(196, 144, 10, 0.1);
+  --alpha-gold-18: rgba(196, 144, 10, 0.18);
+  --alpha-amber-500-13: rgba(217, 119, 6, 0.13);
+  --alpha-amber-500-18: rgba(217, 119, 6, 0.18);
+  --alpha-amber-500-20: rgba(217, 119, 6, 0.2);
+  --alpha-yellow-500-10: rgba(234, 179, 8, 0.1);
+  --alpha-yellow-500-25: rgba(234, 179, 8, 0.25);
+  --alpha-amber-400-10: rgba(245, 158, 11, 0.1);
+  --alpha-amber-400-13: rgba(245, 158, 11, 0.13);
+  --alpha-amber-400-15: rgba(245, 158, 11, 0.15);
+  --alpha-amber-400-20: rgba(245, 158, 11, 0.2);
+  --alpha-amber-400-25: rgba(245, 158, 11, 0.25);
+  --alpha-amber-400-28: rgba(245, 158, 11, 0.28);
+  --alpha-amber-400-30: rgba(245, 158, 11, 0.3);
+  --alpha-amber-400-40: rgba(245, 158, 11, 0.4);
+
+  /* Escala Alfa Roja / Peligro (Alertas, Errores y Acciones Destructivas) */
+  --alpha-red-700-10: rgba(185, 28, 28, 0.1);
+  --alpha-red-700-20: rgba(185, 28, 28, 0.2);
+  --alpha-red-700-22: rgba(185, 28, 28, 0.22);
+  --alpha-red-600-08: rgba(220, 38, 38, 0.08);
+  --alpha-red-600-13: rgba(220, 38, 38, 0.13);
+  --alpha-red-600-18: rgba(220, 38, 38, 0.18);
+  --alpha-red-600-25: rgba(220, 38, 38, 0.25);
+  --alpha-red-500-08: rgba(239, 68, 68, 0.08);
+  --alpha-red-500-13: rgba(239, 68, 68, 0.13);
+  --alpha-red-500-15: rgba(239, 68, 68, 0.15);
+  --alpha-red-500-20: rgba(239, 68, 68, 0.2);
+  --alpha-red-500-22: rgba(239, 68, 68, 0.22);
+  --alpha-red-500-30: rgba(239, 68, 68, 0.3);
+  --alpha-red-500-35: rgba(239, 68, 68, 0.35);
+  --alpha-red-400-35: rgba(248, 113, 113, 0.35);
+
+  /* Sombras compuestas globales */
+  --shadow-sm: 0 2px 8px var(--alpha-rock-04);
+  --shadow-md: 0 8px 24px var(--alpha-rock-06);
+  --sbm-shadow-sm: 0 1px 3px var(--alpha-rock-08);
+  --sbm-shadow-md: 0 4px 12px var(--alpha-rock-08);
+  --sbm-shadow-lg: 0 10px 25px var(--alpha-rock-12);
+  --sbm-shadow-glow: 0 0 14px var(--alpha-amber-400-28);
+}
+
+/* ==========================================================================
+   VARIACIONES DE TEMA Y PANEL DE ACCESIBILIDAD
+   ========================================================================== */
+
+/* ── 1. Modo Claro Explícito (Light Theme) ── */
+body:not(.dark-mode),
+body.light-mode,
+body.light-theme,
+[data-theme="light"] {
+  --bg-color: var(--sbm-rock-100);
+  --bg-body: var(--sbm-rock-100);
+  --bg-surface: var(--sbm-white);
+  --text-main: var(--sbm-rock-900);
+  --text-muted: var(--sbm-rock-500);
+  --border-color: var(--sbm-rock-200);
+
+  --gu-card-bg: var(--sbm-white);
+  --gu-card-border: var(--sbm-rock-200);
+  --gu-card-shadow: 0 4px 14px var(--alpha-black-04);
+  --gu-card-hover-border: var(--sbm-rock-300);
+  --gu-text-name: var(--sbm-rock-900);
+  --gu-text-muted: var(--sbm-rock-500);
+  --gu-text-sub: var(--sbm-rock-700);
+  --gu-icon-color: var(--blue-600);
+  --gu-icon-bg: var(--sbm-rock-50);
+  --gu-icon-border: var(--sbm-rock-200);
+  --gu-badge-admin-bg: var(--sbm-stock-danger-bg);
+  --gu-badge-admin-color: var(--sbm-stock-danger-text);
+  --gu-badge-admin-border: var(--sbm-stock-danger-border);
+  --gu-badge-user-bg: var(--blue-50);
+  --gu-badge-user-color: var(--blue-700);
+  --gu-badge-user-border: var(--blue-200);
+  --gu-avatar-admin-bg: var(--red-100);
+  --gu-avatar-admin-color: var(--sbm-stock-danger-text);
+  --gu-avatar-admin-border: var(--red-300);
+  --gu-avatar-user-bg: var(--blue-100);
+  --gu-avatar-user-color: var(--blue-800);
+  --gu-avatar-user-border: var(--blue-300);
+  --gu-badge-ficha-bg: var(--sbm-rock-100);
+  --gu-badge-ficha-color: var(--sbm-rock-700);
+  --gu-filter-bg: var(--sbm-white);
+  --gu-filter-border: var(--sbm-rock-200);
+  --gu-filter-label: var(--sbm-rock-500);
+  --gu-input-bg: var(--sbm-rock-50);
+  --gu-input-border: var(--sbm-rock-300);
+  --gu-input-text: var(--sbm-rock-900);
+  --gu-input-placeholder: var(--sbm-rock-400);
+  --gu-btn-view-bg: var(--sbm-white);
+  --gu-btn-view-color: var(--sbm-rock-600);
+  --gu-btn-view-border: var(--sbm-rock-300);
+  --gu-btn-view-hover-bg: var(--sbm-rock-100);
+  --gu-btn-view-hover-color: var(--sbm-rock-900);
+  --gu-btn-edit-bg: var(--crimson-admin);
+  --gu-btn-edit-color: var(--sbm-white);
+  --gu-btn-edit-border: var(--crimson-admin-border);
+  --gu-btn-edit-hover-bg: var(--crimson-admin-hover);
+  --gu-table-bg: var(--sbm-white);
+  --gu-table-border: var(--sbm-rock-200);
+  --gu-table-th-bg: var(--sbm-rock-50);
+  --gu-table-th-color: var(--sbm-rock-600);
+  --gu-table-td-color: var(--sbm-rock-900);
+  --gu-table-tr-hover: var(--sbm-rock-50);
+}
+
+/* ── 2. Modo Oscuro (Dark Theme & Accesibilidad Oscura) ── */
+[data-theme="dark"],
+body.dark-mode,
+body.dark-theme,
+aside[data-acc-dark="1"] {
+  --bg-color: var(--sbm-rock-900);
+  --bg-body: var(--sbm-rock-900);
+  --bg-surface: var(--sbm-rock-800);
+  --text-main: var(--sbm-rock-50);
+  --text-muted: var(--sbm-rock-400);
+  --border-color: var(--sbm-rock-700);
+
+  --gu-card-bg: var(--sbm-rock-800);
+  --gu-card-border: var(--alpha-white-09);
+  --gu-card-shadow: 0 4px 14px var(--alpha-black-25);
+  --gu-card-hover-border: var(--sbm-rock-600);
+  --gu-text-name: var(--sbm-rock-50);
+  --gu-text-muted: var(--sbm-rock-400);
+  --gu-text-sub: var(--sbm-rock-300);
+  --gu-icon-color: var(--sky-400);
+  --gu-icon-bg: var(--sbm-rock-900);
+  --gu-icon-border: var(--alpha-white-08);
+  --gu-badge-admin-bg: var(--alpha-red-700-22);
+  --gu-badge-admin-color: var(--red-400);
+  --gu-badge-admin-border: var(--alpha-red-400-35);
+  --gu-badge-user-bg: var(--alpha-blue-500-18);
+  --gu-badge-user-color: var(--blue-400);
+  --gu-badge-user-border: var(--alpha-blue-400-35);
+  --gu-avatar-admin-bg: var(--red-950);
+  --gu-avatar-admin-color: var(--red-300);
+  --gu-avatar-admin-border: var(--red-900);
+  --gu-avatar-user-bg: var(--sky-950);
+  --gu-avatar-user-color: var(--sky-300);
+  --gu-avatar-user-border: var(--sky-700);
+  --gu-badge-ficha-bg: var(--sbm-rock-900);
+  --gu-badge-ficha-color: var(--sbm-rock-400);
+  --gu-filter-bg: var(--sbm-rock-800);
+  --gu-filter-border: var(--sbm-rock-700);
+  --gu-filter-label: var(--sbm-rock-400);
+  --gu-input-bg: var(--sbm-rock-900);
+  --gu-input-border: var(--sbm-rock-700);
+  --gu-input-text: var(--sbm-rock-50);
+  --gu-input-placeholder: var(--sbm-rock-500);
+  --gu-btn-view-bg: var(--alpha-white-05);
+  --gu-btn-view-color: var(--sbm-rock-300);
+  --gu-btn-view-border: var(--sbm-rock-600);
+  --gu-btn-view-hover-bg: var(--alpha-white-12);
+  --gu-btn-view-hover-color: var(--sbm-white);
+  --gu-btn-edit-bg: var(--crimson-admin);
+  --gu-btn-edit-color: var(--sbm-white);
+  --gu-btn-edit-border: var(--crimson-admin-border);
+  --gu-btn-edit-hover-bg: var(--crimson-admin-hover);
+  --gu-table-bg: var(--sbm-rock-800);
+  --gu-table-border: var(--sbm-rock-700);
+  --gu-table-th-bg: var(--sbm-rock-900);
+  --gu-table-th-color: var(--sbm-rock-400);
+  --gu-table-td-color: var(--sbm-rock-300);
+  --gu-table-tr-hover: var(--slate-820);
+}
+
+/* ── 3. Modo de Alto Contraste (High Contrast Accessibility) ── */
+body.high-contrast:not(.dark-mode),
+body.light-mode.high-contrast {
+  --bg-color: var(--sbm-white);
+  --bg-body: var(--sbm-white);
+  --bg-surface: var(--sbm-white);
+  --text-main: var(--color-black);
+  --text-muted: var(--ink-950);
+  --border-color: var(--color-black);
+}
+
+/* ── 4. Preferencia del Sistema Operativo (prefers-color-scheme: dark) ── */
+@media (prefers-color-scheme: dark) {
+  body:not(.light-mode):not([data-theme="light"]) {
+    --bg-color: var(--sbm-rock-900);
+    --bg-body: var(--sbm-rock-900);
+    --bg-surface: var(--sbm-rock-800);
+    --text-main: var(--sbm-rock-50);
+    --text-muted: var(--sbm-rock-400);
+    --border-color: var(--alpha-white-10);
+  }
+}
+
+/* ── 5. Resaltado de Enlaces de Accesibilidad (html.a11y-links) ── */
+html.a11y-links {
+  --a11y-link-color: var(--blue-royal-dark);
+  --a11y-link-bg: var(--yellow-a11y-tint);
+  --a11y-link-hover-bg: var(--a11y-caution);
+  --a11y-link-hover-color: var(--color-black);
+  --a11y-link-outline: var(--color-black);
+}
+

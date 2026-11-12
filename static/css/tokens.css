@@ -5,48 +5,9 @@
    ========================================================================== */
 
 :root {
-  /* ── 1. SUPERFICIES TIPO ROCA / GRAFITO ── */
-  --sbm-rock-950: #080E18;   /* Fondo ultra-profundo / Sidebar principal */
-  --sbm-rock-900: #0F172A;   /* Roca grafito profunda / Headers & Cards oscuras */
-  --sbm-rock-850: #131E30;   /* Superficie secundaria oscura */
-  --sbm-rock-800: #1E293B;   /* Paneles y tarjetas en modo oscuro */
-  --sbm-rock-700: #334155;   /* Bordes de alta resistencia y divisores */
-  --sbm-rock-600: #475569;   /* Bordes sutiles y textos secundarios */
-  --sbm-rock-500: #64748B;   /* Texto neutral de soporte (contraste 4.8:1 s/ blanco) */
-  --sbm-rock-400: #94A3B8;   /* Texto claro en fondos oscuros (contraste 5.5:1) */
-  --sbm-rock-200: #E2E8F0;   /* Bordes claros de contención */
-  --sbm-rock-100: #F1F5F9;   /* Fondo de página de trabajo diurna */
-  --sbm-rock-50:  #F8FAFC;   /* Superficie de tarjetas claras */
-  --sbm-white:    #FFFFFF;   /* Blanco puro para tarjetas y textos destacados */
-
-  /* ── 2. ACENTOS INDUSTRIALES CÁLIDOS (COBRE & ÁMBAR DE SEGURIDAD) ── */
-  --sbm-amber-600: #B45309;  /* Ámbar de seguridad oscuro (contraste 4.7:1 s/ blanco) */
-  --sbm-amber-500: #D97706;  /* Ámbar de seguridad principal para acciones */
-  --sbm-amber-400: #F59E0B;  /* Oro/ámbar minero para elementos sobre fondos oscuros */
-  --sbm-amber-100: #FEF3C7;  /* Fondo suave ámbar */
-  --sbm-amber-50:  #FFFBEB;  /* Tinte sutil ámbar */
-  --sbm-copper-600:#9A3412;  /* Cobre minero profundo */
-  --sbm-copper-500:#C2410C;  /* Cobre de extracción para botones primarios */
-  --sbm-copper-400:#EA580C;  /* Cobre brillante hover */
-
-  /* ── 3. ESTADOS DE STOCK (ALTO CONTRASTE AA) ── */
-  /* Disponible / En óptimo estado */
-  --sbm-stock-ok-text:   #065F46; /* Verde bosque profundo (contraste 7.2:1 s/ fondo) */
-  --sbm-stock-ok-bg:     #ECFDF5;
-  --sbm-stock-ok-border: #A7F3D0;
-  --sbm-stock-ok-solid:  #059669;
-
-  /* Crítico / Mínimo / Por vencer */
-  --sbm-stock-warn-text:   #92400E; /* Ámbar tostado profundo (contraste 5.8:1 s/ fondo) */
-  --sbm-stock-warn-bg:     #FFFBEB;
-  --sbm-stock-warn-border: #FDE68A;
-  --sbm-stock-warn-solid:  #D97706;
-
-  /* Agotado / No disponible / Vencido */
-  --sbm-stock-danger-text:   #991B1B; /* Rojo rubí profundo (contraste 6.5:1 s/ fondo) */
-  --sbm-stock-danger-bg:     #FEF2F2;
-  --sbm-stock-danger-border: #FECACA;
-  --sbm-stock-danger-solid:  #DC2626;
+  /* ── 1-3. TOKENS DE COLOR CENTRALIZADOS EN core/static/css/var.css ── */
+  --sbm-stock-warn-bg:     var(--sbm-amber-50);
+  --sbm-stock-warn-solid:  var(--sbm-amber-500);
 
   /* ── 4. SISTEMA DE ESPACIADO MODULAR (MÚLTIPLOS DE 4px) ── */
   --sbm-space-1:  4px;
@@ -68,10 +29,10 @@
   --sbm-radius-pill: 9999px;
 
   /* ── 6. SOMBRAS INDUSTRIALES DISCRETAS ── */
-  --sbm-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
-  --sbm-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
-  --sbm-shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.12);
-  --sbm-shadow-glow: 0 0 14px rgba(245, 158, 11, 0.28);
+  --sbm-shadow-sm: 0 1px 3px var(--alpha-rock-08);
+  --sbm-shadow-md: 0 4px 12px var(--alpha-rock-08);
+  --sbm-shadow-lg: 0 10px 25px var(--alpha-rock-12);
+  --sbm-shadow-glow: 0 0 14px var(--alpha-amber-400-28);
 
   /* ── 7. TIPOGRAFÍA Y NÚMEROS TABULARES ── */
   --sbm-font-sans: 'Inter', 'Roboto', system-ui, -apple-system, sans-serif;
@@ -166,7 +127,7 @@ table td,
 /* ── ESTADOS INTERACTIVOS ROBUSTOS (HOVER, FOCUS, DISABLED) ── */
 .btn-sbm-primary {
   background-color: var(--sbm-amber-500);
-  color: #FFFFFF;
+  color: var(--sbm-white);
   border: 1px solid var(--sbm-amber-600);
   border-radius: var(--sbm-radius-sm);
   font-weight: 600;
@@ -176,7 +137,7 @@ table td,
 
 .btn-sbm-primary:hover:not(:disabled) {
   background-color: var(--sbm-amber-600);
-  color: #FFFFFF;
+  color: var(--sbm-white);
   box-shadow: var(--sbm-shadow-glow);
   transform: translateY(-1px);
 }
@@ -198,7 +159,7 @@ button:disabled,
 :focus-visible {
   outline: 3px solid var(--sbm-amber-400) !important;
   outline-offset: 2px !important;
-  box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.3) !important;
+  box-shadow: 0 0 0 5px var(--alpha-amber-400-30) !important;
 }
 
 /* ── ESTADOS VACÍOS Y DE CARGA CON ÍCONO DEL SISTEMA ── */
@@ -260,12 +221,12 @@ table.dataTable.dtr-column > tbody > tr > td.dtr-control:before {
   height: 22px;
   border-radius: 6px;
   background-color: var(--sbm-amber-500);
-  color: #0F172A;
+  color: var(--sbm-rock-900);
   font-family: monospace;
   font-weight: 800;
   font-size: 14px;
   line-height: 1;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 3px var(--alpha-black-15);
   margin-right: 8px;
   transition: all 0.15s ease;
 }
@@ -273,18 +234,18 @@ table.dataTable.dtr-column > tbody > tr > td.dtr-control:before {
 table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control:before,
 table.dataTable.dtr-column > tbody > tr.parent > td.dtr-control:before {
   content: "−";
-  background-color: #0F172A;
-  color: #F59E0B;
+  background-color: var(--sbm-rock-900);
+  color: var(--sbm-amber-400);
 }
 
 .sbm-child-row-wrapper {
-  background-color: #F8FAFC !important;
-  border: 1px solid #E2E8F0 !important;
+  background-color: var(--sbm-rock-50) !important;
+  border: 1px solid var(--sbm-rock-200) !important;
 }
 
 body.dark-mode .sbm-child-row-wrapper {
-  background-color: #1E293B !important;
-  border: 1px solid #334155 !important;
+  background-color: var(--sbm-rock-800) !important;
+  border: 1px solid var(--sbm-rock-700) !important;
 }
 
 /* ── BOTONES DE ACCIÓN UNIFICADOS (36x36px TOUCH INDUSTRIAL) ── */
@@ -306,7 +267,7 @@ body.dark-mode .sbm-child-row-wrapper {
   border-radius: 8px;
   border: 1px solid transparent;
   background-color: transparent;
-  color: #475569;
+  color: var(--sbm-rock-600);
   font-size: 1rem;
   transition: all 0.15s ease;
   position: relative;
@@ -315,7 +276,7 @@ body.dark-mode .sbm-child-row-wrapper {
 
 .sbm-action-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 5px var(--alpha-black-08);
 }
 
 .sbm-action-btn:active:not(:disabled) {
@@ -324,57 +285,57 @@ body.dark-mode .sbm-child-row-wrapper {
 
 /* Semántica de botones de acción */
 .sbm-btn-view {
-  color: #334155;
-  background-color: #F1F5F9;
-  border-color: #E2E8F0;
+  color: var(--sbm-rock-700);
+  background-color: var(--sbm-rock-100);
+  border-color: var(--sbm-rock-200);
 }
 .sbm-btn-view:hover:not(:disabled) {
-  background-color: #0F172A;
-  color: #FFFFFF;
-  border-color: #0F172A;
+  background-color: var(--sbm-rock-900);
+  color: var(--sbm-white);
+  border-color: var(--sbm-rock-900);
 }
 
 .sbm-btn-edit {
-  color: #B45309;
-  background-color: #FEF3C7;
-  border-color: #FDE68A;
+  color: var(--sbm-amber-600);
+  background-color: var(--sbm-amber-100);
+  border-color: var(--sbm-stock-warn-border);
 }
 .sbm-btn-edit:hover:not(:disabled) {
-  background-color: #F59E0B;
-  color: #0F172A;
-  border-color: #F59E0B;
+  background-color: var(--sbm-amber-400);
+  color: var(--sbm-rock-900);
+  border-color: var(--sbm-amber-400);
 }
 
 .sbm-btn-success {
-  color: #15803D;
-  background-color: #DCFCE7;
-  border-color: #BBF7D0;
+  color: var(--green-700);
+  background-color: var(--green-100);
+  border-color: var(--green-200);
 }
 .sbm-btn-success:hover:not(:disabled) {
-  background-color: #16A34A;
-  color: #FFFFFF;
-  border-color: #16A34A;
+  background-color: var(--green-600);
+  color: var(--sbm-white);
+  border-color: var(--green-600);
 }
 
 .sbm-btn-danger {
-  color: #B91C1C;
-  background-color: #FEE2E2;
-  border-color: #FECACA;
+  color: var(--red-700);
+  background-color: var(--red-100);
+  border-color: var(--sbm-stock-danger-border);
 }
 .sbm-btn-danger:hover:not(:disabled) {
-  background-color: #DC2626;
-  color: #FFFFFF;
-  border-color: #DC2626;
+  background-color: var(--sbm-stock-danger-solid);
+  color: var(--sbm-white);
+  border-color: var(--sbm-stock-danger-solid);
 }
 
 .sbm-btn-kebab {
-  color: #64748B;
-  background-color: #F8FAFC;
-  border-color: #E2E8F0;
+  color: var(--sbm-rock-500);
+  background-color: var(--sbm-rock-50);
+  border-color: var(--sbm-rock-200);
 }
 .sbm-btn-kebab:hover:not(:disabled) {
-  background-color: #E2E8F0;
-  color: #0F172A;
+  background-color: var(--sbm-rock-200);
+  color: var(--sbm-rock-900);
 }
 
 .sbm-action-btn:disabled {
@@ -397,54 +358,54 @@ body.dark-mode .sbm-child-row-wrapper {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--sbm-amber-600, #D97706);
+  color: var(--sbm-amber-600);
   font-weight: 500;
   padding: 4px 10px;
-  background: rgba(245, 158, 11, 0.1);
+  background: var(--alpha-amber-400-10);
   border-radius: 6px;
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  border: 1px solid var(--alpha-amber-400-25);
 }
 
 .sofia-badge-success {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #15803D;
+  color: var(--green-700);
   font-weight: 600;
   padding: 5px 12px;
-  background: #DCFCE7;
+  background: var(--green-100);
   border-radius: 6px;
-  border: 1px solid #86EFAC;
+  border: 1px solid var(--green-300);
 }
 
 .sofia-badge-error {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #B91C1C;
+  color: var(--red-700);
   font-weight: 500;
   padding: 5px 12px;
-  background: #FEE2E2;
+  background: var(--red-100);
   border-radius: 6px;
-  border: 1px solid #FECACA;
+  border: 1px solid var(--sbm-stock-danger-border);
 }
 
 .sofia-badge-warning {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #B45309;
+  color: var(--sbm-amber-600);
   font-weight: 500;
   padding: 5px 12px;
-  background: #FEF3C7;
+  background: var(--sbm-amber-100);
   border-radius: 6px;
-  border: 1px solid #FCD34D;
+  border: 1px solid var(--sbm-amber-200);
 }
 
 .mine-input.is-locked-sofia {
-  background-color: #F8FAFC !important;
-  color: #334155 !important;
-  border-color: #CBD5E1 !important;
+  background-color: var(--sbm-rock-50) !important;
+  color: var(--sbm-rock-700) !important;
+  border-color: var(--sbm-rock-300) !important;
   cursor: not-allowed;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a2 2 0 0 0-2 2v4H5a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-1V3a2 2 0 0 0-2-2zm1 6V3a1 1 0 0 0-2 0v4h2z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;

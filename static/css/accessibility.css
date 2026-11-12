@@ -1,11 +1,6 @@
 /* ===== Widget de accesibilidad — dock circular ===== */
 
 #a11y-widget {
-    --a11y-ink: #12161A;
-    --a11y-caution: #FFC629;
-    --a11y-panel: #232A31;
-    --a11y-panel-hover: #323C46;
-    --a11y-muted: #C7CCD1;
     position: fixed;
     right: 20px;
     top: 20px;
@@ -20,12 +15,12 @@
     border-radius: 50%;
     background: var(--a11y-ink);
     border: 3px solid var(--a11y-caution);
-    color: #fff;
+    color: var(--sbm-white);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, .28);
+    box-shadow: 0 4px 14px var(--alpha-black-28);
 }
 
 #a11y-fab:hover {
@@ -45,7 +40,7 @@
     background: var(--a11y-ink);
     border-radius: 16px;
     padding: 6px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+    box-shadow: 0 10px 30px var(--alpha-black-35);
 }
 
 #a11y-dock[hidden] {
@@ -93,7 +88,7 @@
 }
 
 .a11y-item[aria-checked="true"] .a11y-label {
-    color: #fff
+    color: var(--sbm-white)
 }
 
 .a11y-item .a11y-label {
@@ -156,7 +151,7 @@
 }
 
 .a11y-bottom button:hover {
-    color: #fff
+    color: var(--sbm-white)
 }
 
 @media (max-width:400px) {
@@ -180,6 +175,6 @@ html.a11y-links a,
 html.a11y-links a:visited {
     text-decoration: underline !important;
     text-decoration-thickness: 2px !important;
-    background: #FFF3B0 !important;
-    color: #12161A !important;
+    background: var(--yellow-a11y-tint) !important;
+    color: var(--a11y-ink) !important;
 }
